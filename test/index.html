@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Slidesow.js test</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    body {
+      text-align: center;
+    }
+
+    .slides {
+      width: 100%;
+      max-width: 800px;
+      height: 400px;
+      margin: 20px auto;
+      position: relative;
+    }
+
+    @media (max-width: 400px) {
+      .slides {
+        height: 200px;
+      }
+    }
+
+    .slides2 {
+      transform: translateZ(0);
+    }
+
+    .slide {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+    }
+
+    .slide img {
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    .button {
+      width: 100px;
+      height: 40px;
+      display: inline-block;
+      cursor: pointer;
+      background-color: gray;
+    }
+
+    .space {
+      height: 50px
+    }
+  </style>
+
+  <script src="../slideshow.js"></script>
+</head>
+<body>
+  <h1>Test 1: Default slideshow</h1>
+  <div class="slides slides1">
+    <div class="slide">
+      <img src="img/1.jpg">
+    </div>
+    <div class="slide">
+      <img src="img/2.jpg">
+    </div>
+    <div class="slide">
+      <img src="img/3.jpg">
+    </div>
+    <div class="slide">
+      <img src="img/4.jpg">
+    </div>
+    <div class="slide">
+      <img src="img/5.jpg">
+    </div>
+  </div>
+  <div id="prev1" class="button">PREV</div>
+  <div id="next1" class="button">NEXT</div>
+  <div class="space"></div>
+  <h1>Test 2: Fade in/out slideshow</h1>
+  <div class="slides slides2">
+    <div class="slide">
+      <img src="img/1.jpg">
+    </div>
+    <div class="slide">
+      <img src="img/2.jpg">
+    </div>
+    <div class="slide">
+      <img src="img/3.jpg">
+    </div>
+    <div class="slide">
+      <img src="img/4.jpg">
+    </div>
+    <div class="slide">
+      <img src="img/5.jpg">
+    </div>
+  </div>
+  <div id="prev2" class="button">PREV</div>
+  <div id="next2" class="button">NEXT</div>
+  <script>
+    slidesContainer1 = document.querySelector('.slides1');
+    slideshow1 = new Slideshow(slidesContainer1);
+    document.querySelector('#next1').addEventListener('click', function() {
+      slideshow1.nextSlide();
+    });
+    document.querySelector('#prev1').addEventListener('click', function() {
+      slideshow1.prevSlide();
+    });
+    slidesContainer2 = document.querySelector('.slides2');
+    slideshow2 = new Slideshow(slidesContainer2, {
+      animationDuration: 600,
+      effect: {
+        // see README.md for comments
+        before: function(slideState, slideElement) {
+          if (slideState === 0) {
+            slideElement.style.opacity = 1;
+          } else {
+            slideElement.style.opacity = 0;
+          }
+        },
+        progress: function(slideState, progress, slideElement) {
+          progress = Math.abs(progress);
+          if (slideState === 0) {
+            slideElement.style.opacity = 1 - progress;
+          } else {
+            slideElement.style.opacity = progress;
+          }
+        },
+        after: function(slideState, slideElement) {
+          // the new slide should be on top for save image (etc.) to work
+          if (slideState === 0) {
+            // this is the previous slide, so send down
+            slideElement.style.zIndex = 0;
+          } else {
+            // this is the next slide so send to top
+            slideElement.style.zIndex = 1;
+          }
+        }
+      }
+    });
+    document.querySelector('#next2').addEventListener('click', function() {
+      slideshow2.nextSlide();
+    });
+    document.querySelector('#prev2').addEventListener('click', function() {
+      slideshow2.prevSlide();
+    });
+  </script>
+</body>
+</html>
