@@ -190,11 +190,6 @@ factory = (document) ->
 
     animateSlides = (currentSlide, targetSlide, {direction, progress, durationMod}) ->
       return if @currentAnimation?
-      direction = switch direction
-        when 'left' then -1
-        when 'right' then 1
-        else Math.abs(parseInt direction) / parseInt direction
-      if isNaN direction then throw new Error 'Could not determine direction of slide'
       progress ?= 0
       durationMod ?= 1
       duration = Math.max 1, @opts.animationDuration * (1 - progress) * durationMod
@@ -260,10 +255,10 @@ factory = (document) ->
         # targetSlide, else the prevSlide will be.
         currentSlide = touch.currentSlide
         if progress < 0
-          direction = 'left'
+          direction = -1
           targetSlide = touch.nextSlide
         else
-          direction = 'right'
+          direction = 1
           targetSlide = touch.prevSlide
         progress = progressAbs
       else
@@ -272,10 +267,10 @@ factory = (document) ->
         # slide direction) away
         targetSlide = touch.currentSlide
         if progress < 0
-          direction = 'right'
+          direction = 1
           currentSlide = touch.nextSlide
         else
-          direction = 'left'
+          direction = -1
           currentSlide = touch.prevSlide
         progress = 1 - progressAbs
       animateSlides.call @, currentSlide, targetSlide, {direction, progress, durationMod}
@@ -312,7 +307,7 @@ factory = (document) ->
       return if i is @current
       currentSlide = @getCurrentSlide()
       targetSlide = @getSlide i
-      direction = if i < @current then 'right' else 'left'
+      direction = if i < @current then 1 else -1
       animateSlides.call @, currentSlide, targetSlide, {direction}, =>
         setCurrentSlide.call @, i
         cb()
@@ -320,7 +315,7 @@ factory = (document) ->
     nextSlide: (cb) ->
       currentSlide = @getCurrentSlide()
       nextSlide = @getNextSlide()
-      direction = 'left'
+      direction = -1
       animateSlides.call @, currentSlide, nextSlide, {direction}, =>
         setCurrentSlide.call @, @current + 1
         cb()
@@ -328,7 +323,7 @@ factory = (document) ->
     prevSlide: (cb) ->
       currentSlide = @getCurrentSlide()
       prevSlide = @getPrevSlide()
-      direction = 'right'
+      direction = 1
       animateSlides.call @, currentSlide, prevSlide, {direction}, =>
         setCurrentSlide.call @, @current - 1
         cb()

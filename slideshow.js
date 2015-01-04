@@ -285,19 +285,6 @@
         if (this.currentAnimation != null) {
           return;
         }
-        direction = (function() {
-          switch (direction) {
-            case 'left':
-              return -1;
-            case 'right':
-              return 1;
-            default:
-              return Math.abs(parseInt(direction)) / parseInt(direction);
-          }
-        })();
-        if (isNaN(direction)) {
-          throw new Error('Could not determine direction of slide');
-        }
         if (progress == null) {
           progress = 0;
         }
@@ -421,20 +408,20 @@
         if (durationMod != null) {
           currentSlide = touch.currentSlide;
           if (progress < 0) {
-            direction = 'left';
+            direction = -1;
             targetSlide = touch.nextSlide;
           } else {
-            direction = 'right';
+            direction = 1;
             targetSlide = touch.prevSlide;
           }
           progress = progressAbs;
         } else {
           targetSlide = touch.currentSlide;
           if (progress < 0) {
-            direction = 'right';
+            direction = 1;
             currentSlide = touch.nextSlide;
           } else {
-            direction = 'left';
+            direction = -1;
             currentSlide = touch.prevSlide;
           }
           progress = 1 - progressAbs;
@@ -491,7 +478,7 @@
         }
         currentSlide = this.getCurrentSlide();
         targetSlide = this.getSlide(i);
-        direction = i < this.current ? 'right' : 'left';
+        direction = i < this.current ? 1 : -1;
         return animateSlides.call(this, currentSlide, targetSlide, {
           direction: direction
         }, (function(_this) {
@@ -506,7 +493,7 @@
         var currentSlide, direction, nextSlide;
         currentSlide = this.getCurrentSlide();
         nextSlide = this.getNextSlide();
-        direction = 'left';
+        direction = -1;
         return animateSlides.call(this, currentSlide, nextSlide, {
           direction: direction
         }, (function(_this) {
@@ -521,7 +508,7 @@
         var currentSlide, direction, prevSlide;
         currentSlide = this.getCurrentSlide();
         prevSlide = this.getPrevSlide();
-        direction = 'right';
+        direction = 1;
         return animateSlides.call(this, currentSlide, prevSlide, {
           direction: direction
         }, (function(_this) {
