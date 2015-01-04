@@ -312,16 +312,14 @@
           progressFn.call(this, 1, progress * anim.direction, anim.targetSlide);
         }
         if (progress === 1) {
+          this.currentAnimation = null;
           cancelAnimationFrame(id);
           setCurrentSlide.call(this, anim.targetSlide);
           afterFn = this.opts.effect.after;
           if (afterFn != null) {
             afterFn.call(this, 0, anim.currentSlide);
           }
-          if (afterFn != null) {
-            afterFn.call(this, 1, anim.targetSlide);
-          }
-          return this.currentAnimation = null;
+          return afterFn != null ? afterFn.call(this, 1, anim.targetSlide) : void 0;
         }
       };
 
@@ -380,6 +378,7 @@
           return;
         }
         touch = this.currentTouchEvent;
+        this.currentTouchEvent = null;
         progress = (event.changedTouches[0].pageX - touch.touchX) / this.el.clientWidth;
         timePassed = event.timeStamp - touch.touchStart;
         progressAbs = Math.abs(progress);
@@ -417,7 +416,6 @@
           progress: progress,
           durationMod: durationMod
         });
-        this.currentTouchEvent = null;
         if (this.opts.preventScroll) {
           return event.preventDefault();
         }

@@ -211,12 +211,12 @@ factory = (document) ->
       progressFn?.call @, 0, progress * anim.direction, anim.currentSlide
       progressFn?.call @, 1, progress * anim.direction, anim.targetSlide
       if progress is 1
+        @currentAnimation = null
         cancelAnimationFrame id
         setCurrentSlide.call @, anim.targetSlide
         afterFn = @opts.effect.after
         afterFn?.call @, 0, anim.currentSlide
         afterFn?.call @, 1, anim.targetSlide
-        @currentAnimation = null
 
     touchstart = (event) ->
       return if @currentAnimation? or @currentTouchEvent?
@@ -243,6 +243,7 @@ factory = (document) ->
     touchend = (event) ->
       return if @currentAnimation or not @currentTouchEvent?
       touch = @currentTouchEvent
+      @currentTouchEvent = null
       progress = (event.changedTouches[0].pageX - touch.touchX) / @el.clientWidth
       timePassed = event.timeStamp - touch.touchStart
       progressAbs = Math.abs progress
@@ -276,7 +277,6 @@ factory = (document) ->
           currentSlide = touch.prevSlide
         progress = 1 - progressAbs
       animateSlides.call @, currentSlide, targetSlide, {direction, progress, durationMod}
-      @currentTouchEvent = null
       event.preventDefault() if @opts.preventScroll
 
     # end private methods
