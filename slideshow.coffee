@@ -8,7 +8,8 @@
 
 # MIT license
 
-do (root = this) ->
+do (root = window ? this) ->
+  console.log root
   lastTime = 0
   vendors = ['ms', 'moz', 'webkit', 'o']
   i = 0
@@ -44,7 +45,7 @@ isObject = (obj) ->
 isNumber = (obj) ->
   Object::toString.call(obj) is '[object Number]'
 
-isNaN = do (root = this) -> root.isNaN ? (obj) ->
+isNaN = do (root = window ? this) -> root.isNaN ? (obj) ->
   isNumber obj and obj isnt +obj
 
 extend = (target, objects...) ->
@@ -64,7 +65,8 @@ Function::bind ?= (context) -> => @apply context, [].slice.call arguments
 
 # vendorPrefix returns vendor prefixed css property (e.g. prefix('transform') -> 'webkitTransform')
 
-prefix = do (root = this) ->
+prefix = do (root = window ? this) ->
+  console.log root
   prefixes = {}
 
   (prop) ->
@@ -335,4 +337,4 @@ do (root = this, factory) ->
   else if typeof exports isnt 'undefined'
     module.exports = Slideshow
   else
-    window.Slideshow = Slideshow
+    root.Slideshow = Slideshow
