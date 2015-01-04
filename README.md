@@ -29,7 +29,6 @@ Support for touch events will be automatically detected, but it can be explicitl
 Everything optional, but for the effect all 3 functions must be provided.
 - `touchEnabled`: (boolean) enable/disable touch events (default: true (enabled))
 - `preventScroll`: (boolean) enable/disable event.preventDefault() on the touch events (default: true (disabled))
-- `first`: (int) the index of the first slide to show (default: 0)
 - `animationDuration`: (int) duration of the sliding animation (default: 400)
 - [`effect`](README.md#effect): (object) define the animation functions (default: slide left to right and back)
 - [`conditions`](README.md#conditions): (array) conditions to determine if a slide should occur after a touch event
