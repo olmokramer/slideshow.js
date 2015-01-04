@@ -27,7 +27,7 @@ Support for touch events will be automatically detected, but it can be explicitl
 ## Options
 
 Everything optional, but for the effect all 3 functions must be provided.
-- `supportTouch`: (boolean) enable/disable touch events (default: true (enabled))
+- `touchEnabled`: (boolean) enable/disable touch events (default: true (enabled))
 - `preventScroll`: (boolean) enable/disable event.preventDefault() on the touch events (default: true (disabled))
 - `first`: (int) the index of the first slide to show (default: 0)
 - `animationDuration`: (int) duration of the sliding animation (default: 400)
