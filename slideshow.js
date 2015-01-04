@@ -1,6 +1,6 @@
 (function() {
   'use strict';
-  var extend, factory, isNaN, isNumber, isObject, prefix, _base,
+  var extend, factory, isArray, isNaN, isNumber, isObject, prefix, _base,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty;
 
@@ -33,15 +33,12 @@
     }
   })(typeof window !== "undefined" && window !== null ? window : this);
 
-  isObject = function(obj) {
-    var type;
-    type = typeof obj;
-    return type === 'object' || type === 'function';
-  };
-
-  isNumber = function(obj) {
-    return Object.prototype.toString.call(obj) === '[object Number]';
-  };
+  isArray = (function(root) {
+    var _ref;
+    return (_ref = root.Array.isArray) != null ? _ref : function(obj) {
+      return Object.prototype.toString.call(obj) === '[object Array]';
+    };
+  })(typeof window !== "undefined" && window !== null ? window : this);
 
   isNaN = (function(root) {
     var _ref;
@@ -49,6 +46,15 @@
       return isNumber(obj && obj !== +obj);
     };
   })(typeof window !== "undefined" && window !== null ? window : this);
+
+  isNumber = function(obj) {
+    return Object.prototype.toString.call(obj) === '[object Number]';
+  };
+
+  isObject = function(obj) {
+    var type;
+    return (type = typeof obj) === 'object' || type === 'function';
+  };
 
   extend = function() {
     var object, objects, prop, target, _i, _len;
@@ -107,6 +113,18 @@
       var animateSlides, defaults, init, initSlides, initTouchEvents, nextFrame, setCurrentSlide, touchend, touchmove, touchstart;
 
       function Slideshow(element, opts) {
+        var el;
+        if (isArray(element)) {
+          return (function() {
+            var _i, _len, _results;
+            _results = [];
+            for (_i = 0, _len = element.length; _i < _len; _i++) {
+              el = element[_i];
+              _results.push(new Slideshow(el, opts));
+            }
+            return _results;
+          })();
+        }
         if (!(element instanceof HTMLElement)) {
           if (element[0]) {
             element = element[0];
@@ -466,53 +484,50 @@
         return this.slides[this.slides.length - 1];
       };
 
-      Slideshow.prototype.slideTo = function(i, direction) {
-        var currentSlide, targetSlide;
+      Slideshow.prototype.slideTo = function(i, cb) {
+        var currentSlide, direction, targetSlide;
         if (i === this.current) {
           return;
         }
         currentSlide = this.getCurrentSlide();
         targetSlide = this.getSlide(i);
-        if (direction == null) {
-          direction = i < this.current ? 'right' : 'left';
-        }
+        direction = i < this.current ? 'right' : 'left';
         return animateSlides.call(this, currentSlide, targetSlide, {
           direction: direction
         }, (function(_this) {
           return function() {
-            return setCurrentSlide.call(_this, i);
+            setCurrentSlide.call(_this, i);
+            return cb();
           };
         })(this));
       };
 
-      Slideshow.prototype.nextSlide = function(direction) {
-        var currentSlide, nextSlide;
+      Slideshow.prototype.nextSlide = function(cb) {
+        var currentSlide, direction, nextSlide;
         currentSlide = this.getCurrentSlide();
         nextSlide = this.getNextSlide();
-        if (direction == null) {
-          direction = 'left';
-        }
+        direction = 'left';
         return animateSlides.call(this, currentSlide, nextSlide, {
           direction: direction
         }, (function(_this) {
           return function() {
-            return setCurrentSlide.call(_this, _this.current + 1);
+            setCurrentSlide.call(_this, _this.current + 1);
+            return cb();
           };
         })(this));
       };
 
-      Slideshow.prototype.prevSlide = function(direction) {
-        var currentSlide, prevSlide;
+      Slideshow.prototype.prevSlide = function(cb) {
+        var currentSlide, direction, prevSlide;
         currentSlide = this.getCurrentSlide();
         prevSlide = this.getPrevSlide();
-        if (direction == null) {
-          direction = 'right';
-        }
+        direction = 'right';
         return animateSlides.call(this, currentSlide, prevSlide, {
           direction: direction
         }, (function(_this) {
           return function() {
-            return setCurrentSlide.call(_this, _this.current - 1);
+            setCurrentSlide.call(_this, _this.current - 1);
+            return cb();
           };
         })(this));
       };

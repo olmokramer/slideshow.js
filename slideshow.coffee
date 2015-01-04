@@ -31,21 +31,19 @@ do (root = window ? this) ->
 
 # end requestAnimationFrame polyfill
 
-# functions stolen from underscore
+# functions stolen from underscore and translated to coffee-script
 # Underscore.js 1.7.0
 # http://underscorejs.org
 # (c) 2009-2014 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 # Underscore may be freely distributed under the MIT license.
 
-isObject = (obj) ->
-  type = typeof obj
-  type is 'object' or type is 'function'
+isArray = do (root = window ? this) -> root.Array.isArray ? (obj) -> Object::toString.call(obj) is '[object Array]'
 
-isNumber = (obj) ->
-  Object::toString.call(obj) is '[object Number]'
+isNaN = do (root = window ? this) -> root.isNaN ? (obj) -> isNumber obj and obj isnt +obj
 
-isNaN = do (root = window ? this) -> root.isNaN ? (obj) ->
-  isNumber obj and obj isnt +obj
+isNumber = (obj) -> Object::toString.call(obj) is '[object Number]'
+
+isObject = (obj) -> (type = typeof obj) is 'object' or type is 'function'
 
 extend = (target, objects...) ->
   return unless isObject target
@@ -82,6 +80,7 @@ prefix = do (root = window ? this) ->
 factory = (document) ->
   class Slideshow
     constructor: (element, opts) ->
+      if isArray element then return (new Slideshow el, opts for el in element)
       unless element instanceof HTMLElement
         if element[0] then element = element[0] #jQuery
       unless element instanceof HTMLElement then throw new Error 'No slideshow element provided'
@@ -309,27 +308,30 @@ factory = (document) ->
     getLastSlide: ->
       @slides[@slides.length - 1]
 
-    slideTo: (i, direction) ->
+    slideTo: (i, cb) ->
       return if i is @current
       currentSlide = @getCurrentSlide()
       targetSlide = @getSlide i
-      direction ?= if i < @current then 'right' else 'left'
+      direction = if i < @current then 'right' else 'left'
       animateSlides.call @, currentSlide, targetSlide, {direction}, =>
         setCurrentSlide.call @, i
+        cb()
 
-    nextSlide: (direction) ->
+    nextSlide: (cb) ->
       currentSlide = @getCurrentSlide()
       nextSlide = @getNextSlide()
-      direction ?= 'left'
+      direction = 'left'
       animateSlides.call @, currentSlide, nextSlide, {direction}, =>
         setCurrentSlide.call @, @current + 1
+        cb()
 
-    prevSlide: (direction) ->
+    prevSlide: (cb) ->
       currentSlide = @getCurrentSlide()
       prevSlide = @getPrevSlide()
-      direction ?= 'right'
+      direction = 'right'
       animateSlides.call @, currentSlide, prevSlide, {direction}, =>
         setCurrentSlide.call @, @current - 1
+        cb()
 
 do (root = this, factory) ->
   Slideshow = factory root.document
