@@ -141,7 +141,6 @@
       defaults = {
         touchEnabled: true,
         preventScroll: true,
-        first: 0,
         animationDuration: 400,
         conditions: [
           {
@@ -240,7 +239,7 @@
           }
         }
         this.slides = this.el.children;
-        setCurrentSlide.call(this, this.opts.first);
+        this.current = 0;
         if (beforeFn != null) {
           beforeFn.call(this, 0, this.slides[this.current]);
         }
@@ -269,17 +268,10 @@
       };
 
       setCurrentSlide = function(slide) {
-        var i;
-        if (isNumber(slide)) {
-          i = slide;
-          slide = this.slides[i];
-        } else {
-          i = [].indexOf.call(this.slides, slide);
-        }
-        return this.current = i;
+        return this.current = [].indexOf.call(this.slides, slide);
       };
 
-      animateSlides = function(currentSlide, targetSlide, _arg) {
+      animateSlides = function(currentSlide, targetSlide, _arg, callback) {
         var beforeFn, direction, duration, durationMod, progress;
         direction = _arg.direction, progress = _arg.progress, durationMod = _arg.durationMod;
         if (this.currentAnimation != null) {
@@ -307,7 +299,8 @@
           targetSlide: targetSlide,
           direction: direction,
           duration: duration,
-          progress: progress
+          progress: progress,
+          callback: callback
         };
         return requestAnimationFrame(nextFrame.bind(this));
       };
@@ -327,12 +320,17 @@
         if (progress === 1) {
           this.currentAnimation = null;
           cancelAnimationFrame(id);
-          setCurrentSlide.call(this, anim.targetSlide);
           afterFn = this.opts.effect.after;
           if (afterFn != null) {
             afterFn.call(this, 0, anim.currentSlide);
           }
-          return afterFn != null ? afterFn.call(this, 1, anim.targetSlide) : void 0;
+          if (afterFn != null) {
+            afterFn.call(this, 1, anim.targetSlide);
+          }
+          if (typeof anim.callback === "function") {
+            anim.callback();
+          }
+          return setCurrentSlide.call(this, anim.targetSlide);
         }
       };
 
@@ -481,12 +479,7 @@
         direction = i < this.current ? 1 : -1;
         return animateSlides.call(this, currentSlide, targetSlide, {
           direction: direction
-        }, (function(_this) {
-          return function() {
-            setCurrentSlide.call(_this, i);
-            return cb();
-          };
-        })(this));
+        }, cb);
       };
 
       Slideshow.prototype.nextSlide = function(cb) {
@@ -496,12 +489,7 @@
         direction = -1;
         return animateSlides.call(this, currentSlide, nextSlide, {
           direction: direction
-        }, (function(_this) {
-          return function() {
-            setCurrentSlide.call(_this, _this.current + 1);
-            return cb();
-          };
-        })(this));
+        }, cb);
       };
 
       Slideshow.prototype.prevSlide = function(cb) {
@@ -511,12 +499,7 @@
         direction = 1;
         return animateSlides.call(this, currentSlide, prevSlide, {
           direction: direction
-        }, (function(_this) {
-          return function() {
-            setCurrentSlide.call(_this, _this.current - 1);
-            return cb();
-          };
-        })(this));
+        }, cb);
       };
 
       return Slideshow;

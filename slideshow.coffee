@@ -93,7 +93,6 @@ factory = (document) ->
     defaults =
       touchEnabled: true
       preventScroll: true
-      first: 0
       animationDuration: 400
       conditions: [
         distance: .1
@@ -169,7 +168,7 @@ factory = (document) ->
         beforeFn?.call @, 1, slide
         afterFn?.call @, 0, slide
       @slides = @el.children
-      setCurrentSlide.call @, @opts.first
+      @current = 0
       beforeFn?.call @, 0, @slides[@current]
       afterFn?.call @, 1, @slides[@current]
 
@@ -181,14 +180,9 @@ factory = (document) ->
       @el.addEventListener 'touchend', (e) => touchend.call @, e
 
     setCurrentSlide = (slide) ->
-      if isNumber slide
-        i = slide
-        slide = @slides[i]
-      else
-        i = [].indexOf.call @slides, slide
-      @current = i
+      @current = [].indexOf.call @slides, slide
 
-    animateSlides = (currentSlide, targetSlide, {direction, progress, durationMod}) ->
+    animateSlides = (currentSlide, targetSlide, {direction, progress, durationMod}, callback) ->
       return if @currentAnimation?
       progress ?= 0
       durationMod ?= 1
@@ -197,7 +191,7 @@ factory = (document) ->
         beforeFn = @opts.effect.before
         beforeFn?.call @, 0, currentSlide
         beforeFn?.call @, (if direction < 0 then 1 else -1), targetSlide
-      @currentAnimation = {animationStart: new Date().getTime(), currentSlide, targetSlide, direction, duration, progress}
+      @currentAnimation = {animationStart: new Date().getTime(), currentSlide, targetSlide, direction, duration, progress, callback}
       requestAnimationFrame nextFrame.bind @
 
     nextFrame = (timestamp) ->
@@ -210,10 +204,11 @@ factory = (document) ->
       if progress is 1
         @currentAnimation = null
         cancelAnimationFrame id
-        setCurrentSlide.call @, anim.targetSlide
         afterFn = @opts.effect.after
         afterFn?.call @, 0, anim.currentSlide
         afterFn?.call @, 1, anim.targetSlide
+        anim.callback?()
+        setCurrentSlide.call @, anim.targetSlide
 
     touchstart = (event) ->
       return if @currentAnimation? or @currentTouchEvent?
@@ -308,25 +303,19 @@ factory = (document) ->
       currentSlide = @getCurrentSlide()
       targetSlide = @getSlide i
       direction = if i < @current then 1 else -1
-      animateSlides.call @, currentSlide, targetSlide, {direction}, =>
-        setCurrentSlide.call @, i
-        cb()
+      animateSlides.call @, currentSlide, targetSlide, {direction}, cb
 
     nextSlide: (cb) ->
       currentSlide = @getCurrentSlide()
       nextSlide = @getNextSlide()
       direction = -1
-      animateSlides.call @, currentSlide, nextSlide, {direction}, =>
-        setCurrentSlide.call @, @current + 1
-        cb()
+      animateSlides.call @, currentSlide, nextSlide, {direction}, cb
 
     prevSlide: (cb) ->
       currentSlide = @getCurrentSlide()
       prevSlide = @getPrevSlide()
       direction = 1
-      animateSlides.call @, currentSlide, prevSlide, {direction}, =>
-        setCurrentSlide.call @, @current - 1
-        cb()
+      animateSlides.call @, currentSlide, prevSlide, {direction}, cb
 
 do (root = this, factory) ->
   Slideshow = factory root.document
