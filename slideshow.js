@@ -278,7 +278,7 @@
         if (durationMod == null) {
           durationMod = 1;
         }
-        duration = this.opts.animationDuration * (1 - progress) * durationMod;
+        duration = Math.max(1, this.opts.animationDuration * (1 - progress) * durationMod);
         if (this.currentTouchEvent == null) {
           beforeFn = this.opts.effect.before;
           if (beforeFn != null) {

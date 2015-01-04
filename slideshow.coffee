@@ -195,7 +195,7 @@ factory = (document) ->
       if isNaN direction then throw new Error 'Could not determine direction of slide'
       progress ?= 0
       durationMod ?= 1
-      duration = @opts.animationDuration * (1 - progress) * durationMod
+      duration = Math.max 1, @opts.animationDuration * (1 - progress) * durationMod
       unless @currentTouchEvent?
         beforeFn = @opts.effect.before
         beforeFn?.call @, 0, currentSlide
