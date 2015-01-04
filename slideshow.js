@@ -1,6 +1,6 @@
 (function() {
   'use strict';
-  var extend, factory, isNaN, isNumber, isObject, prefix, _base,
+  var extend, factory, isArray, isNaN, isNumber, isObject, prefix, _base,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty;
 
@@ -33,15 +33,12 @@
     }
   })(typeof window !== "undefined" && window !== null ? window : this);
 
-  isObject = function(obj) {
-    var type;
-    type = typeof obj;
-    return type === 'object' || type === 'function';
-  };
-
-  isNumber = function(obj) {
-    return Object.prototype.toString.call(obj) === '[object Number]';
-  };
+  isArray = (function(root) {
+    var _ref;
+    return (_ref = root.Array.isArray) != null ? _ref : function(obj) {
+      return Object.prototype.toString.call(obj) === '[object Array]';
+    };
+  })(typeof window !== "undefined" && window !== null ? window : this);
 
   isNaN = (function(root) {
     var _ref;
@@ -49,6 +46,15 @@
       return isNumber(obj && obj !== +obj);
     };
   })(typeof window !== "undefined" && window !== null ? window : this);
+
+  isNumber = function(obj) {
+    return Object.prototype.toString.call(obj) === '[object Number]';
+  };
+
+  isObject = function(obj) {
+    var type;
+    return (type = typeof obj) === 'object' || type === 'function';
+  };
 
   extend = function() {
     var object, objects, prop, target, _i, _len;
@@ -107,15 +113,34 @@
       var animateSlides, defaults, init, initSlides, initTouchEvents, nextFrame, setCurrentSlide, touchend, touchmove, touchstart;
 
       function Slideshow(element, opts) {
+        var el;
+        if (isArray(element)) {
+          return (function() {
+            var _i, _len, _results;
+            _results = [];
+            for (_i = 0, _len = element.length; _i < _len; _i++) {
+              el = element[_i];
+              _results.push(new Slideshow(el, opts));
+            }
+            return _results;
+          })();
+        }
+        if (!(element instanceof HTMLElement)) {
+          if (element[0]) {
+            element = element[0];
+          }
+        }
+        if (!(element instanceof HTMLElement)) {
+          throw new Error('No slideshow element provided');
+        }
         this.opts = extend({}, defaults, opts);
         this.el = element;
         init.call(this);
       }
 
       defaults = {
-        supportTouch: true,
+        touchEnabled: true,
         preventScroll: true,
-        first: 0,
         animationDuration: 400,
         conditions: [
           {
@@ -214,7 +239,7 @@
           }
         }
         this.slides = this.el.children;
-        setCurrentSlide.call(this, this.opts.first);
+        this.current = 0;
         if (beforeFn != null) {
           beforeFn.call(this, 0, this.slides[this.current]);
         }
@@ -222,7 +247,7 @@
       };
 
       initTouchEvents = function() {
-        if (!(this.supportTouch = this.opts.supportTouch && (typeof TouchEvent !== "undefined" && TouchEvent !== null))) {
+        if (!(this.touchEnabled = this.opts.touchEnabled && (typeof TouchEvent !== "undefined" && TouchEvent !== null))) {
           return;
         }
         this.el.addEventListener('touchstart', (function(_this) {
@@ -243,34 +268,14 @@
       };
 
       setCurrentSlide = function(slide) {
-        var i;
-        if (isNumber(slide)) {
-          i = slide;
-          slide = this.slides[i];
-        } else {
-          i = [].indexOf.call(this.slides, slide);
-        }
-        return this.current = i;
+        return this.current = [].indexOf.call(this.slides, slide);
       };
 
-      animateSlides = function(currentSlide, targetSlide, _arg) {
+      animateSlides = function(currentSlide, targetSlide, _arg, callback) {
         var beforeFn, direction, duration, durationMod, progress;
         direction = _arg.direction, progress = _arg.progress, durationMod = _arg.durationMod;
         if (this.currentAnimation != null) {
           return;
-        }
-        direction = (function() {
-          switch (direction) {
-            case 'left':
-              return -1;
-            case 'right':
-              return 1;
-            default:
-              return Math.abs(parseInt(direction)) / parseInt(direction);
-          }
-        })();
-        if (isNaN(direction)) {
-          throw new Error('Could not determine direction of slide');
         }
         if (progress == null) {
           progress = 0;
@@ -294,7 +299,8 @@
           targetSlide: targetSlide,
           direction: direction,
           duration: duration,
-          progress: progress
+          progress: progress,
+          callback: callback
         };
         return requestAnimationFrame(nextFrame.bind(this));
       };
@@ -314,12 +320,17 @@
         if (progress === 1) {
           this.currentAnimation = null;
           cancelAnimationFrame(id);
-          setCurrentSlide.call(this, anim.targetSlide);
           afterFn = this.opts.effect.after;
           if (afterFn != null) {
             afterFn.call(this, 0, anim.currentSlide);
           }
-          return afterFn != null ? afterFn.call(this, 1, anim.targetSlide) : void 0;
+          if (afterFn != null) {
+            afterFn.call(this, 1, anim.targetSlide);
+          }
+          if (typeof anim.callback === "function") {
+            anim.callback();
+          }
+          return setCurrentSlide.call(this, anim.targetSlide);
         }
       };
 
@@ -395,20 +406,20 @@
         if (durationMod != null) {
           currentSlide = touch.currentSlide;
           if (progress < 0) {
-            direction = 'left';
+            direction = -1;
             targetSlide = touch.nextSlide;
           } else {
-            direction = 'right';
+            direction = 1;
             targetSlide = touch.prevSlide;
           }
           progress = progressAbs;
         } else {
           targetSlide = touch.currentSlide;
           if (progress < 0) {
-            direction = 'right';
+            direction = 1;
             currentSlide = touch.nextSlide;
           } else {
-            direction = 'left';
+            direction = -1;
             currentSlide = touch.prevSlide;
           }
           progress = 1 - progressAbs;
@@ -458,55 +469,37 @@
         return this.slides[this.slides.length - 1];
       };
 
-      Slideshow.prototype.slideTo = function(i, direction) {
-        var currentSlide, targetSlide;
+      Slideshow.prototype.slideTo = function(i, cb) {
+        var currentSlide, direction, targetSlide;
         if (i === this.current) {
           return;
         }
         currentSlide = this.getCurrentSlide();
         targetSlide = this.getSlide(i);
-        if (direction == null) {
-          direction = i < this.current ? 'right' : 'left';
-        }
+        direction = i < this.current ? 1 : -1;
         return animateSlides.call(this, currentSlide, targetSlide, {
           direction: direction
-        }, (function(_this) {
-          return function() {
-            return setCurrentSlide.call(_this, i);
-          };
-        })(this));
+        }, cb);
       };
 
-      Slideshow.prototype.nextSlide = function(direction) {
-        var currentSlide, nextSlide;
+      Slideshow.prototype.nextSlide = function(cb) {
+        var currentSlide, direction, nextSlide;
         currentSlide = this.getCurrentSlide();
         nextSlide = this.getNextSlide();
-        if (direction == null) {
-          direction = 'left';
-        }
+        direction = -1;
         return animateSlides.call(this, currentSlide, nextSlide, {
           direction: direction
-        }, (function(_this) {
-          return function() {
-            return setCurrentSlide.call(_this, _this.current + 1);
-          };
-        })(this));
+        }, cb);
       };
 
-      Slideshow.prototype.prevSlide = function(direction) {
-        var currentSlide, prevSlide;
+      Slideshow.prototype.prevSlide = function(cb) {
+        var currentSlide, direction, prevSlide;
         currentSlide = this.getCurrentSlide();
         prevSlide = this.getPrevSlide();
-        if (direction == null) {
-          direction = 'right';
-        }
+        direction = 1;
         return animateSlides.call(this, currentSlide, prevSlide, {
           direction: direction
-        }, (function(_this) {
-          return function() {
-            return setCurrentSlide.call(_this, _this.current - 1);
-          };
-        })(this));
+        }, cb);
       };
 
       return Slideshow;
