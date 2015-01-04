@@ -82,6 +82,9 @@ prefix = do (root = window ? this) ->
 factory = (document) ->
   class Slideshow
     constructor: (element, opts) ->
+      unless element instanceof HTMLElement
+        if element[0] then element = element[0] #jQuery
+      unless element instanceof HTMLElement then throw new Error 'No slideshow element provided'
       @opts = extend {}, defaults, opts
       @el = element
       init.call @
@@ -89,7 +92,7 @@ factory = (document) ->
     # private methods and variables
 
     defaults =
-      supportTouch: true
+      touchEnabled: true
       preventScroll: true
       first: 0
       animationDuration: 400
@@ -173,7 +176,7 @@ factory = (document) ->
 
     initTouchEvents = ->
       # return unless TouchEvent is supported and it is not explicitly disabled
-      return unless @supportTouch = @opts.supportTouch and TouchEvent?
+      return unless @touchEnabled = @opts.touchEnabled and TouchEvent?
       @el.addEventListener 'touchstart', (e) => touchstart.call @, e
       @el.addEventListener 'touchmove', (e) => touchmove.call @, e
       @el.addEventListener 'touchend', (e) => touchend.call @, e

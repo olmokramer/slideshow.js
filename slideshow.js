@@ -107,13 +107,21 @@
       var animateSlides, defaults, init, initSlides, initTouchEvents, nextFrame, setCurrentSlide, touchend, touchmove, touchstart;
 
       function Slideshow(element, opts) {
+        if (!(element instanceof HTMLElement)) {
+          if (element[0]) {
+            element = element[0];
+          }
+        }
+        if (!(element instanceof HTMLElement)) {
+          throw new Error('No slideshow element provided');
+        }
         this.opts = extend({}, defaults, opts);
         this.el = element;
         init.call(this);
       }
 
       defaults = {
-        supportTouch: true,
+        touchEnabled: true,
         preventScroll: true,
         first: 0,
         animationDuration: 400,
@@ -222,7 +230,7 @@
       };
 
       initTouchEvents = function() {
-        if (!(this.supportTouch = this.opts.supportTouch && (typeof TouchEvent !== "undefined" && TouchEvent !== null))) {
+        if (!(this.touchEnabled = this.opts.touchEnabled && (typeof TouchEvent !== "undefined" && TouchEvent !== null))) {
           return;
         }
         this.el.addEventListener('touchstart', (function(_this) {
