@@ -31,7 +31,7 @@
         return clearTimeout(id);
       };
     }
-  })(this);
+  })(typeof window !== "undefined" && window !== null ? window : this);
 
   isObject = function(obj) {
     var type;
@@ -48,7 +48,7 @@
     return (_ref = root.isNaN) != null ? _ref : function(obj) {
       return isNumber(obj && obj !== +obj);
     };
-  })(this);
+  })(typeof window !== "undefined" && window !== null ? window : this);
 
   extend = function() {
     var object, objects, prop, target, _i, _len;
@@ -99,7 +99,7 @@
       }
       return false;
     };
-  })(this);
+  })(typeof window !== "undefined" && window !== null ? window : this);
 
   factory = function(document) {
     var Slideshow;
@@ -519,12 +519,12 @@
     Slideshow = factory(root.document);
     if (typeof define === 'function' && define.amd) {
       return define([], function() {
-        return Slides;
+        return Slideshow;
       });
     } else if (typeof exports !== 'undefined') {
-      return module.exports = Slides;
+      return module.exports = Slideshow;
     } else {
-      return window.Slideshow = Slideshow;
+      return root.Slideshow = Slideshow;
     }
   })(this, factory);
 
