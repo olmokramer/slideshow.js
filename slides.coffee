@@ -15,7 +15,7 @@ do (root = this) ->
   while i < vendors.length and not root.requestAnimationFrame
     vendor = vendors[i++]
     root.requestAnimationFrame = root["#{vendor}RequestAnimationFrame"]
-    root.cancelAnimationFrame = root["#{vendor}CancelAnimationFrame"] ? root ["#{vendor}CancelRequestAnimationFrame"]
+    root.cancelAnimationFrame = root["#{vendor}CancelAnimationFrame"] ? root["#{vendor}CancelRequestAnimationFrame"]
 
   unless root.requestAnimationFrame?
     root.requestAnimationFrame = (callback) ->
