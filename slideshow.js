@@ -6,7 +6,6 @@
 
   (function(root) {
     var i, lastTime, vendor, vendors, _ref;
-    console.log(root);
     lastTime = 0;
     vendors = ['ms', 'moz', 'webkit', 'o'];
     i = 0;
@@ -79,7 +78,6 @@
 
   prefix = (function(root) {
     var prefixes;
-    console.log(root);
     prefixes = {};
     return function(prop) {
       var prefixed, style, vendor, _i, _len, _ref;

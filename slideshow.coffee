@@ -9,7 +9,6 @@
 # MIT license
 
 do (root = window ? this) ->
-  console.log root
   lastTime = 0
   vendors = ['ms', 'moz', 'webkit', 'o']
   i = 0
@@ -66,7 +65,6 @@ Function::bind ?= (context) -> => @apply context, [].slice.call arguments
 # vendorPrefix returns vendor prefixed css property (e.g. prefix('transform') -> 'webkitTransform')
 
 prefix = do (root = window ? this) ->
-  console.log root
   prefixes = {}
 
   (prop) ->
