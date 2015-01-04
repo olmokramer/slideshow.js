@@ -12,7 +12,7 @@
     while (i < vendors.length && !root.requestAnimationFrame) {
       vendor = vendors[i++];
       root.requestAnimationFrame = root["" + vendor + "RequestAnimationFrame"];
-      root.cancelAnimationFrame = (_ref = root["" + vendor + "CancelAnimationFrame"]) != null ? _ref : root(["" + vendor + "CancelRequestAnimationFrame"]);
+      root.cancelAnimationFrame = (_ref = root["" + vendor + "CancelAnimationFrame"]) != null ? _ref : root["" + vendor + "CancelRequestAnimationFrame"];
     }
     if (root.requestAnimationFrame == null) {
       root.requestAnimationFrame = function(callback) {
