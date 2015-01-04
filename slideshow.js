@@ -278,7 +278,7 @@
         if (durationMod == null) {
           durationMod = 1;
         }
-        duration = this.opts.animationDuration * (1 - progress) * durationMod;
+        duration = Math.max(1, this.opts.animationDuration * (1 - progress) * durationMod);
         if (this.currentTouchEvent == null) {
           beforeFn = this.opts.effect.before;
           if (beforeFn != null) {
@@ -312,16 +312,14 @@
           progressFn.call(this, 1, progress * anim.direction, anim.targetSlide);
         }
         if (progress === 1) {
+          this.currentAnimation = null;
           cancelAnimationFrame(id);
           setCurrentSlide.call(this, anim.targetSlide);
           afterFn = this.opts.effect.after;
           if (afterFn != null) {
             afterFn.call(this, 0, anim.currentSlide);
           }
-          if (afterFn != null) {
-            afterFn.call(this, 1, anim.targetSlide);
-          }
-          return this.currentAnimation = null;
+          return afterFn != null ? afterFn.call(this, 1, anim.targetSlide) : void 0;
         }
       };
 
@@ -351,7 +349,9 @@
           touchX: event.touches[0].pageX,
           touchY: event.touches[0].pageY
         };
-        return event.preventDefault();
+        if (this.opts.preventScroll) {
+          return event.preventDefault();
+        }
       };
 
       touchmove = function(event) {
@@ -380,6 +380,7 @@
           return;
         }
         touch = this.currentTouchEvent;
+        this.currentTouchEvent = null;
         progress = (event.changedTouches[0].pageX - touch.touchX) / this.el.clientWidth;
         timePassed = event.timeStamp - touch.touchStart;
         progressAbs = Math.abs(progress);
@@ -417,7 +418,6 @@
           progress: progress,
           durationMod: durationMod
         });
-        this.currentTouchEvent = null;
         if (this.opts.preventScroll) {
           return event.preventDefault();
         }
