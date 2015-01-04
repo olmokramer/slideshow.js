@@ -1,4 +1,4 @@
-# Slideshow.js 1.1.1
+# Slideshow.js 1.2.0
 
 Slideshow.js is a javascript slideshow, with touch/swipe support. [Demo here](https://olmokramer.github.io/slideshow.js)
 
@@ -164,11 +164,11 @@ effect: {
 The slideshow created with `new Slideshow(element, options)` has the following methods:
 
 - getSlide(index): get slide at &lt;index&gt;
-- getCurrentSlide: get the currently visible slide
-- getNextSlide: get the slide after the currently visible slide
-- getPrevSlide: get the slide before the currently visible slide
-- getFirstSlide: get the first slide in the slideshow
-- getLastSlide: get the last slide in the slideshow
-- slideTo(index, direction): slide to slide at &lt;index&gt;, animating slides to the &lt;direction&gt; ('left' or 'right')
-- nextSlide(direction): slide to the next slide, animating slides to the &lt;direction&gt; ('left' or 'right')
-- prevSlide(direction): slide to the previous slide, animating slides to the &lt;direction&gt; ('left' or 'right')
+- getCurrentSlide(): get the currently visible slide
+- getNextSlide(): get the slide after the currently visible slide
+- getPrevSlide(): get the slide before the currently visible slide
+- getFirstSlide(): get the first slide in the slideshow
+- getLastSlide(): get the last slide in the slideshow
+- slideTo(index, callback): slide to slide at &lt;index&gt;
+- nextSlide(callback): slide to the next slide
+- prevSlide(callback): slide to the previous slide
