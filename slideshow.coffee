@@ -228,7 +228,7 @@ factory = (document) ->
       beforeFn?.call @, -1, prevSlide
       beforeFn?.call @, 1, nextSlide
       @currentTouchEvent = {currentSlide, prevSlide, nextSlide, touchStart: event.timeStamp, touchX: event.touches[0].pageX, touchY: event.touches[0].pageY}
-      event.preventDefault()
+      event.preventDefault() if @opts.preventScroll
 
     touchmove = (event) ->
       return if @currentAnimation or not @currentTouchEvent?

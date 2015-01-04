@@ -349,7 +349,9 @@
           touchX: event.touches[0].pageX,
           touchY: event.touches[0].pageY
         };
-        return event.preventDefault();
+        if (this.opts.preventScroll) {
+          return event.preventDefault();
+        }
       };
 
       touchmove = function(event) {
