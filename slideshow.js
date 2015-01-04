@@ -519,10 +519,10 @@
     Slideshow = factory(root.document);
     if (typeof define === 'function' && define.amd) {
       return define([], function() {
-        return Slides;
+        return Slideshow;
       });
     } else if (typeof exports !== 'undefined') {
-      return module.exports = Slides;
+      return module.exports = Slideshow;
     } else {
       return window.Slideshow = Slideshow;
     }

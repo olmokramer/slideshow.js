@@ -331,8 +331,8 @@ factory = (document) ->
 do (root = this, factory) ->
   Slideshow = factory root.document
   if typeof define is 'function' and define.amd
-    define [], -> Slides
+    define [], -> Slideshow
   else if typeof exports isnt 'undefined'
-    module.exports = Slides
+    module.exports = Slideshow
   else
     window.Slideshow = Slideshow
