@@ -1,4 +1,4 @@
-# Slideshow.js 1.3.1
+# Slideshow.js 1.3.2
 
 Slideshow.js is a javascript slideshow, with touch/swipe support. [Demo here](https://olmokramer.github.io/slideshow.js)
 
