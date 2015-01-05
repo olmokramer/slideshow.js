@@ -81,9 +81,9 @@ factory = (document) ->
   class Slideshow
     constructor: (element, opts) ->
       if isArray element then return (new Slideshow el, opts for el in element)
-      unless element instanceof HTMLElement
+      unless element.nodeType is 1
         if element[0] then element = element[0] #jQuery
-      unless element instanceof HTMLElement then throw new Error 'No slideshow element provided'
+      if element.nodeType isnt 1 then throw new Error 'No slideshow element provided'
       @opts = extend {}, defaults, opts
       @el = element
       init.call @

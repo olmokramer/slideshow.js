@@ -125,12 +125,12 @@
             return _results;
           })();
         }
-        if (!(element instanceof HTMLElement)) {
+        if (element.nodeType !== 1) {
           if (element[0]) {
             element = element[0];
           }
         }
-        if (!(element instanceof HTMLElement)) {
+        if (element.nodeType !== 1) {
           throw new Error('No slideshow element provided');
         }
         this.opts = extend({}, defaults, opts);
