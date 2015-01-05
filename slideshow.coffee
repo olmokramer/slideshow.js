@@ -37,9 +37,9 @@ do (root = window ? this) ->
 # (c) 2009-2014 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 # Underscore may be freely distributed under the MIT license.
 
-isArray = do (root = window ? this) -> root.Array.isArray ? (obj) -> Object::toString.call(obj) is '[object Array]'
+isArray = Array.isArray ? (obj) -> Object::toString.call(obj) is '[object Array]'
 
-isNaN = do (root = window ? this) -> root.isNaN ? (obj) -> isNumber obj and obj isnt +obj
+isNaN = isNaN ? (obj) -> isNumber obj and obj isnt +obj
 
 isNumber = (obj) -> Object::toString.call(obj) is '[object Number]'
 
@@ -51,6 +51,11 @@ extend = (target, objects...) ->
     for own prop of object
       target[prop] = object[prop]
   target
+
+indexOf = (array, match) ->
+  return unless array?
+  return i for item, i in array when item is match
+  -1
 
 # end functions stolen from underscore
 
@@ -164,10 +169,10 @@ factory = (document) ->
       @el.style.overflow = 'hidden'
       beforeFn = @opts.effect.before
       afterFn = @opts.effect.after
-      for slide in @el.children
+      @slides = @el.children ? @el.childNodes
+      for slide in @slides
         beforeFn?.call @, 1, slide
         afterFn?.call @, 0, slide
-      @slides = @el.children
       @current = 0
       beforeFn?.call @, 0, @slides[@current]
       afterFn?.call @, 1, @slides[@current]
@@ -180,7 +185,7 @@ factory = (document) ->
       @el.addEventListener 'touchend', (e) => touchend.call @, e
 
     setCurrentSlide = (slide) ->
-      @current = [].indexOf.call @slides, slide
+      @current = indexOf @slides, slide
 
     animateSlides = (currentSlide, targetSlide, {direction, progress, durationMod}, callback) ->
       return if @currentAnimation?
