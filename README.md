@@ -83,10 +83,14 @@ Be sure to prepare the slides with css, so if you're going to animate opacity, m
 
 Arguments:
 1. slideState: (int) -1, 0 or 1 where:
-  - -1 indicates this is the slide before the currently visible slide
-  - 0 indicates this is the currently visible slide
-  - 1 indicates this is the slide after the currently visible slide
+  - a value of -1 indicates this is the slide before the currently visible slide
+  - a value of 0 indicates this is the currently visible slide
+  - a value of 1 indicates this is the slide after the currently visible slide
 2. slideElement: (HTMLElement) this slide's DOM object
+
+The values of slideState and their corresponding slides in the before function:
+
+![different values for slideState in the before function](img/before.png)
 
 The before function is called just before animating the slides. Depending of the type of action that activates the animation (programmatically or by touch) it is called with different elements.
 When programmatically sliding to a new slide, it is called on the currently visible slide, and on the targeted slide.
@@ -98,9 +102,13 @@ This function is mostly used to put the slide elements in place before animating
 
 Arguments:
 1. slideState: (int) 0 or 1 where:
-  - 0 indicates this is the slide that was just moved away
-  - 1 indicates this is the slide that was just moved in
+  - a value of 0 indicates this is the slide that was just moved away
+  - a value of 1 indicates this is the slide that was just moved in
 2. slideElement: (HTMLElement) this slide's DOM object
+
+The values of slideState and their corresponding slides in the after function:
+
+![different values for slideState in the before function](img/after.png)
 
 The after function is called just after animating the slides. It is used to clean up some stuff if necessary.
 
@@ -108,10 +116,14 @@ The after function is called just after animating the slides. It is used to clea
 
 Arguments:
 1. slideState: (int) 0 or 1 where:
-  - 0 indicates this is the slide that is currently moving away
-  - 1 indicates this is the slide that is currently moving in
+  - a value of 0 indicates this is the slide that is currently moving away
+  - a value of 1 indicates this is the slide that is currently moving in
 2. progress: (float) can be any value between -1 and 1. A negative value indicates movement to the right (or to a previous slide) where a positive value indicates the opposite.
 3. slideElement: (HTMLElement) this slide's DOM object
+
+The values of slideState and their corresponding slides in the progress function (the slides are moving to the right in this image):
+
+![different values for slideState in the before function](img/progress.png)
 
 The progress function is where the animating happens. Use it to modify properties of the slideElement, according to the progress. Lightweight progress functions increase animation performance.
 
