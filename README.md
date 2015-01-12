@@ -82,6 +82,7 @@ Be sure to prepare the slides with css, so if you're going to animate opacity, m
 #### effect.before
 
 Arguments:
+
 1. slideState: (int) -1, 0 or 1 where:
   - a value of -1 indicates this is the slide before the currently visible slide
   - a value of 0 indicates this is the currently visible slide
@@ -101,6 +102,7 @@ This function is mostly used to put the slide elements in place before animating
 #### effect.after
 
 Arguments:
+
 1. slideState: (int) 0 or 1 where:
   - a value of 0 indicates this is the slide that was just moved away
   - a value of 1 indicates this is the slide that was just moved in
@@ -115,6 +117,7 @@ The after function is called just after animating the slides. It is used to clea
 #### effect.progress
 
 Arguments:
+
 1. slideState: (int) 0 or 1 where:
   - a value of 0 indicates this is the slide that is currently moving away
   - a value of 1 indicates this is the slide that is currently moving in
