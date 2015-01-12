@@ -108,7 +108,7 @@ Arguments:
   - a value of 1 indicates this is the slide that was just moved in
 2. slideElement: (HTMLElement) this slide's DOM object
 
-The values of slideState and their corresponding slides in the after function:
+The values of slideState and their corresponding slides in the after function (a slide to the left has just occurred in this image):
 
 ![different values for slideState in the before function](img/after.png)
 
