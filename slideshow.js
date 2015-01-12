@@ -1,6 +1,6 @@
 (function() {
   'use strict';
-  var extend, factory, isArray, isNaN, isNumber, isObject, prefix, _base,
+  var extend, factory, indexOf, isArray, isNaN, isNumber, isObject, prefix, _base, _ref,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty;
 
@@ -33,19 +33,13 @@
     }
   })(typeof window !== "undefined" && window !== null ? window : this);
 
-  isArray = (function(root) {
-    var _ref;
-    return (_ref = root.Array.isArray) != null ? _ref : function(obj) {
-      return Object.prototype.toString.call(obj) === '[object Array]';
-    };
-  })(typeof window !== "undefined" && window !== null ? window : this);
+  isArray = (_ref = Array.isArray) != null ? _ref : function(obj) {
+    return Object.prototype.toString.call(obj) === '[object Array]';
+  };
 
-  isNaN = (function(root) {
-    var _ref;
-    return (_ref = root.isNaN) != null ? _ref : function(obj) {
-      return isNumber(obj && obj !== +obj);
-    };
-  })(typeof window !== "undefined" && window !== null ? window : this);
+  isNaN = isNaN != null ? isNaN : function(obj) {
+    return isNumber(obj && obj !== +obj);
+  };
 
   isNumber = function(obj) {
     return Object.prototype.toString.call(obj) === '[object Number]';
@@ -72,6 +66,20 @@
     return target;
   };
 
+  indexOf = function(array, match) {
+    var i, item, _i, _len;
+    if (array == null) {
+      return;
+    }
+    for (i = _i = 0, _len = array.length; _i < _len; i = ++_i) {
+      item = array[i];
+      if (item === match) {
+        return i;
+      }
+    }
+    return -1;
+  };
+
   if ((_base = Function.prototype).bind == null) {
     _base.bind = function(context) {
       return (function(_this) {
@@ -86,7 +94,7 @@
     var prefixes;
     prefixes = {};
     return function(prop) {
-      var prefixed, style, vendor, _i, _len, _ref;
+      var prefixed, style, vendor, _i, _len, _ref1;
       if (prop in prefixes) {
         return prefixes[prop];
       }
@@ -95,9 +103,9 @@
         return prefixes[prop] = prop;
       }
       prop = prop.charAt(0).toUpperCase() + prop.slice(1);
-      _ref = ['moz', 'webkit', 'khtml', 'o', 'ms'];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        vendor = _ref[_i];
+      _ref1 = ['moz', 'webkit', 'khtml', 'o', 'ms'];
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        vendor = _ref1[_i];
         prefixed = "" + vendor + prop;
         if (prefixed in style) {
           return prefixes[prop] = prefixed;
@@ -223,14 +231,15 @@
       };
 
       initSlides = function() {
-        var afterFn, beforeFn, slide, _i, _len, _ref;
+        var afterFn, beforeFn, slide, _i, _len, _ref1, _ref2;
         this.el.className += ' slideshow-container';
         this.el.style.overflow = 'hidden';
         beforeFn = this.opts.effect.before;
         afterFn = this.opts.effect.after;
-        _ref = this.el.children;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          slide = _ref[_i];
+        this.slides = (_ref1 = this.el.children) != null ? _ref1 : this.el.childNodes;
+        _ref2 = this.slides;
+        for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+          slide = _ref2[_i];
           if (beforeFn != null) {
             beforeFn.call(this, 1, slide);
           }
@@ -238,7 +247,6 @@
             afterFn.call(this, 0, slide);
           }
         }
-        this.slides = this.el.children;
         this.current = 0;
         if (beforeFn != null) {
           beforeFn.call(this, 0, this.slides[this.current]);
@@ -268,7 +276,7 @@
       };
 
       setCurrentSlide = function(slide) {
-        return this.current = [].indexOf.call(this.slides, slide);
+        return this.current = indexOf(this.slides, slide);
       };
 
       animateSlides = function(currentSlide, targetSlide, _arg, callback) {
@@ -386,7 +394,7 @@
       };
 
       touchend = function(event) {
-        var cond, currentSlide, direction, durationMod, progress, progressAbs, targetSlide, timePassed, touch, _i, _len, _ref, _ref1, _ref2;
+        var cond, currentSlide, direction, durationMod, progress, progressAbs, targetSlide, timePassed, touch, _i, _len, _ref1, _ref2, _ref3;
         if (this.currentAnimation || (this.currentTouchEvent == null)) {
           return;
         }
@@ -395,11 +403,11 @@
         progress = (event.changedTouches[0].pageX - touch.touchX) / this.el.clientWidth;
         timePassed = event.timeStamp - touch.touchStart;
         progressAbs = Math.abs(progress);
-        _ref = this.opts.conditions;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          cond = _ref[_i];
-          if (progressAbs > cond.distance && timePassed < ((_ref1 = cond.time) != null ? _ref1 : Infinity)) {
-            durationMod = (_ref2 = cond.durationMod) != null ? _ref2 : 1;
+        _ref1 = this.opts.conditions;
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          cond = _ref1[_i];
+          if (progressAbs > cond.distance && timePassed < ((_ref2 = cond.time) != null ? _ref2 : Infinity)) {
+            durationMod = (_ref3 = cond.durationMod) != null ? _ref3 : 1;
             break;
           }
         }
