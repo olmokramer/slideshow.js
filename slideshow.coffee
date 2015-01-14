@@ -38,8 +38,6 @@ do (root = window ? this) ->
 # (c) 2009-2014 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 # Underscore may be freely distributed under the MIT license.
 
-isArray = Array.isArray ? (obj) -> Object::toString.call(obj) is '[object Array]'
-
 isNaN = isNaN ? (obj) -> isNumber obj and obj isnt +obj
 
 isNumber = (obj) -> Object::toString.call(obj) is '[object Number]'
@@ -86,21 +84,24 @@ prefix = do (root = window ? this) ->
 factory = (document) ->
   class Slideshow
     constructor: (element, opts) ->
-      if isArray element then return (new Slideshow el, opts for el in element)
+      # test if element is a valid html element or maybe
+      # a jQuery object or Backbone View
       unless element.nodeType is 1
-        if element[0] then element = element[0] #jQuery
-      if element.nodeType isnt 1 then throw new Error 'No slideshow element provided'
+        if element[0]? then element = element[0] #jQuery
+        if element.el? then element = element.el #Backbone
+      if element.nodeType isnt 1 then throw new Error 'No valid element provided'
       @opts = extend {}, defaults, opts
       @el = element
+      # and go!
       init.call @
 
     # private methods and variables
 
     defaults =
-      touchEnabled: true
-      preventScroll: true
-      animationDuration: 400
-      conditions: [
+      touchEnabled: true # enable touch events
+      preventScroll: true # call event.preventDefault in the touch events
+      animationDuration: 400 # duration of the animation
+      conditions: [ # conditions array, see README.md
         distance: .1
         time: 250
         durationMod: .5
@@ -110,7 +111,7 @@ factory = (document) ->
       ,
         distance: .5
       ]
-      effect:
+      effect: # effect object, see README.md
         before: (slideState, slideElement) ->
           slideElement.style.display = 'block'
           ###
@@ -166,15 +167,20 @@ factory = (document) ->
       initTouchEvents.call @
 
     initSlides = ->
-      @el.className += ' slideshow-container'
+      # we don't want the slides to be visible outside their container
       @el.style.overflow = 'hidden'
       beforeFn = @opts.effect.before
       afterFn = @opts.effect.after
+      # el.children may behave weird in IE8
       @slides = @el.children ? @el.childNodes
-      for slide in @slides
+      @current = 0
+      for slide, i in @slides when i isnt @current
+        # call the before and after functions once on all but the first
+        # slide, so all slides
+        # are positioned properly
         beforeFn?.call @, 1, slide
         afterFn?.call @, 0, slide
-      @current = 0
+      # call the before on the first slide to properly position it
       beforeFn?.call @, 0, @slides[@current]
       afterFn?.call @, 1, @slides[@current]
 
@@ -186,70 +192,101 @@ factory = (document) ->
       @el.addEventListener 'touchend', (e) => touchend.call @, e
 
     setCurrentSlide = (slide) ->
+      # set @current to slide's index in @slides
       @current = indexOf @slides, slide
 
     animateSlides = (currentSlide, targetSlide, {direction, progress, durationMod}, callback) ->
+      # return if an animation is in progress
       return if @currentAnimation?
+      # progress and durationMod are only passed from a touch event
       progress ?= 0
       durationMod ?= 1
+      # alter the duration of the animation after a touch event
       duration = Math.max 1, @opts.animationDuration * (1 - progress) * durationMod
+      # slides shouldn't be prepared if this is called from a touch event
+      # because this has already happened in touchStart
       unless @currentTouchEvent?
         beforeFn = @opts.effect.before
         beforeFn?.call @, 0, currentSlide
         beforeFn?.call @, (if direction < 0 then 1 else -1), targetSlide
-      @currentAnimation = {animationStart: new Date().getTime(), currentSlide, targetSlide, direction, duration, progress, callback}
+      # cache the animation state
+      @currentAnimation = {start: new Date().getTime(), currentSlide, targetSlide, direction, duration, progress, callback}
+      # and finally start animating
       requestAnimationFrame bind nextFrame, @
 
     nextFrame = (timestamp) ->
+      # immediately call the next requestAnimationFrame
       id = requestAnimationFrame bind nextFrame, @
       anim = @currentAnimation
-      progress = Math.min 1, anim.progress + (new Date().getTime() - anim.animationStart) / anim.duration * (1 - anim.progress)
+      # calculate the actual progress (fraction of the animationDuration)
+      progress = Math.min 1, anim.progress + (new Date().getTime() - anim.start) / anim.duration * (1 - anim.progress)
+      # call the progress functions (this is where the magic happens)
       progressFn = @opts.effect.progress
       progressFn?.call @, 0, progress * anim.direction, anim.currentSlide
       progressFn?.call @, 1, progress * anim.direction, anim.targetSlide
       if progress is 1
+        # the animation has ended
         @currentAnimation = null
         cancelAnimationFrame id
+        # call the after and callback functions
         afterFn = @opts.effect.after
         afterFn?.call @, 0, anim.currentSlide
         afterFn?.call @, 1, anim.targetSlide
         anim.callback?()
+        # set the new currentSlide
         setCurrentSlide.call @, anim.targetSlide
 
     touchstart = (event) ->
+      # do nothing if an animation or touch event is currently in progress
       return if @currentAnimation? or @currentTouchEvent?
+      # get the relevant slides
       currentSlide = @getCurrentSlide()
       prevSlide = @getPrevSlide()
       nextSlide = @getNextSlide()
+      # prepare the slides to be animated
       beforeFn = @opts.effect.before
       beforeFn?.call @, 0, currentSlide
       beforeFn?.call @, -1, prevSlide
       beforeFn?.call @, 1, nextSlide
+      # cache the touch event state
       @currentTouchEvent = {currentSlide, prevSlide, nextSlide, touchStart: event.timeStamp, touchX: event.touches[0].pageX, touchY: event.touches[0].pageY}
+      # prevent default behavior if it's set in options
       event.preventDefault() if @opts.preventScroll
 
     touchmove = (event) ->
+      # do nothing if an animation is in progress, or there's no touch event in progress yet (which souldn't happen)
       return if @currentAnimation or not @currentTouchEvent?
       touch = @currentTouchEvent
+      # calculate the progress based on the distance touched
       progress = (event.touches[0].pageX - touch.touchX) / @el.clientWidth
+      # animate the slide
       requestAnimationFrame =>
         progressFn = @opts.effect.progress
         progressFn.call @, 0, progress, touch.currentSlide
         progressFn.call @, 1, progress, if progress < 0 then touch.nextSlide else touch.prevSlide
+      # prevent default behavior if it's set in options
       event.preventDefault() if @opts.preventScroll
 
     touchend = (event) ->
+      # do nothing if an animation is in progress, or there's no touch event in progress yet (which souldn't happen)
       return if @currentAnimation or not @currentTouchEvent?
       touch = @currentTouchEvent
+      # this has to happen early so touches that happen close to eachother
+      # don't cancel each other
       @currentTouchEvent = null
+      # calculate the final progress that has been made
       progress = (event.changedTouches[0].pageX - touch.touchX) / @el.clientWidth
+      # calculate the time passed
       timePassed = event.timeStamp - touch.touchStart
       progressAbs = Math.abs progress
+      # check progress and timePassed against the conditions
       for cond in @opts.conditions
         if progressAbs > cond.distance and timePassed < (cond.time ? Infinity)
+          # one condition passed so set durationMod from that condition
           durationMod = cond.durationMod ? 1
           break
       # at this point, durationMod is only set if we matched a condition
+      # so slide to the next slide
       if durationMod?
         # we matched a condition, so slide away the currentSlide and slide in
         # the targetSlide. if we slided to the left, the nextSlide will be the
@@ -274,60 +311,81 @@ factory = (document) ->
           direction = -1
           currentSlide = touch.prevSlide
         progress = 1 - progressAbs
+      # call the animateSlides function with the parameters
       animateSlides.call @, currentSlide, targetSlide, {direction, progress, durationMod}
+      # prevent default behavior if set in options
       event.preventDefault() if @opts.preventScroll
 
     # end private methods
 
     # public methods
 
+    # get*Slide all return an HTMLElement
+
+    # get the slide at index i
+    # getSlide(-1) === getSlide(slides.length - 1)
+    # and getSlide(slides.length) === getSlide(0)
     getSlide: (i) ->
       i = i % @slides.length
       if i < 0 then i += @slides.length
       @slides[i]
 
+    # get the currently visible slide
     getCurrentSlide: ->
       @slides[@current]
 
+    # get the slide after the currently visible one
     getNextSlide: ->
-      target = (@current + 1) % @slides.length
-      @slides[target]
+      @getSlide @current + 1
 
+    # get the slide before the currently visible one
     getPrevSlide: ->
-      target = @current - 1
-      if target < 0 then target = @slides.length - 1
-      @slides[target]
+      @getSlide @current - 1
 
+    # get the first slide
     getFirstSlide: ->
       @slides[0]
 
+    # get the last slide
     getLastSlide: ->
       @slides[@slides.length - 1]
 
+    # slideTo and slideTo* initiate an animation
+
+    # slide to the slide at index i
     slideTo: (i, cb) ->
       return if i is @current
       currentSlide = @getCurrentSlide()
       targetSlide = @getSlide i
+      # slide to left if i < @current, else slide to right
       direction = if i < @current then 1 else -1
       animateSlides.call @, currentSlide, targetSlide, {direction}, cb
 
-    nextSlide: (cb) ->
+    # slide to the next slide
+    slideToNext: (cb) ->
       currentSlide = @getCurrentSlide()
       nextSlide = @getNextSlide()
+      # slide to the left
       direction = -1
       animateSlides.call @, currentSlide, nextSlide, {direction}, cb
 
-    prevSlide: (cb) ->
+    # slide to the previous slide
+    slideToPrev: (cb) ->
       currentSlide = @getCurrentSlide()
       prevSlide = @getPrevSlide()
+      # slide to the right
       direction = 1
       animateSlides.call @, currentSlide, prevSlide, {direction}, cb
 
+# amd, commonjs and browser environment support
 do (root = this, factory) ->
   Slideshow = factory root.document
+  # amd
   if typeof define is 'function' and define.amd
     define [], -> Slideshow
+  # commonjs
   else if typeof exports isnt 'undefined'
     module.exports = Slideshow
+  # browser
   else
     root.Slideshow = Slideshow
