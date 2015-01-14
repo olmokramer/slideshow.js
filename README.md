@@ -73,7 +73,7 @@ Next condition: the distance (0.4) is larger than the conditions distance (0.3).
 
 The effect option is an object with three functions:
 
-- `before`: (function) executed right before the slide is animated
+- `before`: (function) executed right before the animation
 - `progress`: (function) the actual animation function
 - `after`: (function) executed right after the animation
 
@@ -99,6 +99,22 @@ When touching to slide, it is called on the currently visible slide, and its imm
 
 This function is mostly used to put the slide elements in place before animating them.
 
+#### effect.progress
+
+Arguments:
+
+1. slideState: (int) 0 or 1 where:
+- a value of 0 indicates this is the slide that is currently moving away
+- a value of 1 indicates this is the slide that is currently moving in
+2. progress: (float) can be any value between -1 and 1. A negative value indicates movement to the right (or to a previous slide) where a positive value indicates the opposite.
+3. slideElement: (HTMLElement) this slide's DOM object
+
+The values of slideState and their corresponding slides in the progress function (the slides are moving to the right in this image):
+
+![different values for slideState in the before function](img/progress.png)
+
+The progress function is where the animating happens. Use it to modify properties of the slideElement, according to the progress. Lightweight progress functions increase animation performance.
+
 #### effect.after
 
 Arguments:
@@ -113,22 +129,6 @@ The values of slideState and their corresponding slides in the after function (a
 ![different values for slideState in the before function](img/after.png)
 
 The after function is called just after animating the slides. It is used to clean up some stuff if necessary.
-
-#### effect.progress
-
-Arguments:
-
-1. slideState: (int) 0 or 1 where:
-  - a value of 0 indicates this is the slide that is currently moving away
-  - a value of 1 indicates this is the slide that is currently moving in
-2. progress: (float) can be any value between -1 and 1. A negative value indicates movement to the right (or to a previous slide) where a positive value indicates the opposite.
-3. slideElement: (HTMLElement) this slide's DOM object
-
-The values of slideState and their corresponding slides in the progress function (the slides are moving to the right in this image):
-
-![different values for slideState in the before function](img/progress.png)
-
-The progress function is where the animating happens. Use it to modify properties of the slideElement, according to the progress. Lightweight progress functions increase animation performance.
 
 #### Example
 
@@ -186,3 +186,7 @@ The slideshow created with `new Slideshow(element, options)` has the following m
 - slideTo(index, callback): slide to slide at &lt;index&gt;
 - slideToNext(callback): slide to the next slide
 - slideToPrev(callback): slide to the previous slide
+
+## Acknowledgement
+
+A lot of credit goes to [slides.js](http://slidesjs.com/). That project has been a huge inspiration in the creation of this one. I just thought it wasn't customisable enough and I wanted to get rid of the jQuery requirement, so I created this one.
