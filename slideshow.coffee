@@ -17,6 +17,7 @@ do (root = window ? this) ->
     root.requestAnimationFrame = root["#{vendor}RequestAnimationFrame"]
     root.cancelAnimationFrame = root["#{vendor}CancelAnimationFrame"] ? root["#{vendor}CancelRequestAnimationFrame"]
 
+
   unless root.requestAnimationFrame?
     root.requestAnimationFrame = (callback) ->
       currTime = new Date().getTime()
@@ -59,9 +60,9 @@ indexOf = (array, match) ->
 
 # end functions stolen from underscore
 
-# Function::bind polyfill (simplified, without partial filling)
+# bind(fn, context) binds context to fn
 
-Function::bind ?= (context) -> => @apply context, [].slice.call arguments
+bind = (fn, context) -> -> fn.apply context, [].slice.call arguments
 
 # end bind
 
@@ -197,10 +198,10 @@ factory = (document) ->
         beforeFn?.call @, 0, currentSlide
         beforeFn?.call @, (if direction < 0 then 1 else -1), targetSlide
       @currentAnimation = {animationStart: new Date().getTime(), currentSlide, targetSlide, direction, duration, progress, callback}
-      requestAnimationFrame nextFrame.bind @
+      requestAnimationFrame bind nextFrame, @
 
     nextFrame = (timestamp) ->
-      id = requestAnimationFrame nextFrame.bind @
+      id = requestAnimationFrame bind nextFrame, @
       anim = @currentAnimation
       progress = Math.min 1, anim.progress + (new Date().getTime() - anim.animationStart) / anim.duration * (1 - anim.progress)
       progressFn = @opts.effect.progress
