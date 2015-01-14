@@ -108,7 +108,7 @@
           return prefixes[prop] = prefixed;
         }
       }
-      return false;
+      return prefixes[prop] = false;
     };
   })(typeof window !== "undefined" && window !== null ? window : this);
 

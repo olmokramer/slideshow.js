@@ -79,7 +79,7 @@ prefix = do (root = window ? this) ->
     for vendor in ['moz', 'webkit', 'khtml', 'o', 'ms']
       prefixed = "#{vendor}#{prop}"
       return prefixes[prop] = prefixed if prefixed of style
-    false
+    prefixes[prop] = false
 
 # end vendorPrefix
 
