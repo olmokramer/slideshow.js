@@ -358,7 +358,7 @@ factory = (document) ->
     # slideTo and slideTo* initiate an animation
 
     # slide to the slide at index i
-    slideTo: (i, cb) ->
+    goTo: (i, cb) ->
       return if i is @current
       currentSlide = @getCurrentSlide()
       targetSlide = @getSlide i
@@ -367,7 +367,7 @@ factory = (document) ->
       animateSlides.call @, currentSlide, targetSlide, {direction}, cb
 
     # slide to the next slide
-    slideToNext: (cb) ->
+    goToNext: (cb) ->
       currentSlide = @getCurrentSlide()
       nextSlide = @getNextSlide()
       # slide to the left
@@ -375,12 +375,28 @@ factory = (document) ->
       animateSlides.call @, currentSlide, nextSlide, {direction}, cb
 
     # slide to the previous slide
-    slideToPrev: (cb) ->
+    goToPrev: (cb) ->
       currentSlide = @getCurrentSlide()
       prevSlide = @getPrevSlide()
       # slide to the right
       direction = 1
       animateSlides.call @, currentSlide, prevSlide, {direction}, cb
+
+    # slide to first slide
+    goToFirst: (cb) ->
+      currentSlide = @getCurrentSlide()
+      firstSlide = @getFirstSlide()
+      # slide to the right
+      direction = 1
+      animateSlides.call @, currentSlide, firstSlide, {direction}, cb
+
+    # slide to last slide
+    goToLast: (cb) ->
+      currentSlide = @getCurrentSlide()
+      lastSlide = @getLastSlide()
+      # slide to the right
+      direction = -1
+      animateSlides.call @, currentSlide, lastSlide, {direction}, cb
 
 # amd, commonjs and browser environment support
 do (root = this, factory) ->

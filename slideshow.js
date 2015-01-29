@@ -460,7 +460,7 @@
         return this.slides[this.slides.length - 1];
       };
 
-      Slideshow.prototype.slideTo = function(i, cb) {
+      Slideshow.prototype.goTo = function(i, cb) {
         var currentSlide, direction, targetSlide;
         if (i === this.current) {
           return;
@@ -473,7 +473,7 @@
         }, cb);
       };
 
-      Slideshow.prototype.slideToNext = function(cb) {
+      Slideshow.prototype.goToNext = function(cb) {
         var currentSlide, direction, nextSlide;
         currentSlide = this.getCurrentSlide();
         nextSlide = this.getNextSlide();
@@ -483,12 +483,32 @@
         }, cb);
       };
 
-      Slideshow.prototype.slideToPrev = function(cb) {
+      Slideshow.prototype.goToPrev = function(cb) {
         var currentSlide, direction, prevSlide;
         currentSlide = this.getCurrentSlide();
         prevSlide = this.getPrevSlide();
         direction = 1;
         return animateSlides.call(this, currentSlide, prevSlide, {
+          direction: direction
+        }, cb);
+      };
+
+      Slideshow.prototype.goToFirst = function(cb) {
+        var currentSlide, direction, firstSlide;
+        currentSlide = this.getCurrentSlide();
+        firstSlide = this.getFirstSlide();
+        direction = 1;
+        return animateSlides.call(this, currentSlide, firstSlide, {
+          direction: direction
+        }, cb);
+      };
+
+      Slideshow.prototype.goToLast = function(cb) {
+        var currentSlide, direction, lastSlide;
+        currentSlide = this.getCurrentSlide();
+        lastSlide = this.getLastSlide();
+        direction = -1;
+        return animateSlides.call(this, currentSlide, lastSlide, {
           direction: direction
         }, cb);
       };
