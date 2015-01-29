@@ -205,6 +205,7 @@ factory = (document) ->
       duration = Math.max 1, @opts.animationDuration * (1 - progress) * durationMod
       # slides shouldn't be prepared if this is called from a touch event
       # because this has already happened in touchStart
+      console.log @currentTouchEvent?
       unless @currentTouchEvent?
         beforeFn = @opts.effect.before
         beforeFn?.call @, 0, currentSlide
@@ -224,7 +225,7 @@ factory = (document) ->
       progressFn = @opts.effect.progress
       progressFn?.call @, 0, progress * anim.direction, anim.currentSlide
       progressFn?.call @, 1, progress * anim.direction, anim.targetSlide
-      if progress is 1
+      if progress >= 1
         # the animation has ended
         @currentAnimation = null
         cancelAnimationFrame id
@@ -249,7 +250,14 @@ factory = (document) ->
       beforeFn?.call @, -1, prevSlide
       beforeFn?.call @, 1, nextSlide
       # cache the touch event state
-      @currentTouchEvent = {currentSlide, prevSlide, nextSlide, touchStart: event.timeStamp, touchX: event.touches[0].pageX, touchY: event.touches[0].pageY}
+      @currentTouchEvent = {
+        currentSlide
+        prevSlide
+        nextSlide
+        touchStart: event.timeStamp
+        touchX: event.touches[0].pageX
+        touchY: event.touches[0].pageY
+      }
       # prevent default behavior if it's set in options
       event.preventDefault() if @opts.preventScroll
 
@@ -271,9 +279,6 @@ factory = (document) ->
       # do nothing if an animation is in progress, or there's no touch event in progress yet (which souldn't happen)
       return if @currentAnimation or not @currentTouchEvent?
       touch = @currentTouchEvent
-      # this has to happen early so touches that happen close to eachother
-      # don't cancel each other
-      @currentTouchEvent = null
       # calculate the final progress that has been made
       progress = (event.changedTouches[0].pageX - touch.touchX) / @el.clientWidth
       # calculate the time passed
@@ -312,7 +317,7 @@ factory = (document) ->
           currentSlide = touch.prevSlide
         progress = 1 - progressAbs
       # call the animateSlides function with the parameters
-      animateSlides.call @, currentSlide, targetSlide, {direction, progress, durationMod}
+      animateSlides.call @, currentSlide, targetSlide, {direction, progress, durationMod}, => @currentTouchEvent = null
       # prevent default behavior if set in options
       event.preventDefault() if @opts.preventScroll
 

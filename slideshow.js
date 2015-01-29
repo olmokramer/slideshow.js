@@ -278,6 +278,7 @@
           durationMod = 1;
         }
         duration = Math.max(1, this.opts.animationDuration * (1 - progress) * durationMod);
+        console.log(this.currentTouchEvent != null);
         if (this.currentTouchEvent == null) {
           beforeFn = this.opts.effect.before;
           if (beforeFn != null) {
@@ -311,7 +312,7 @@
         if (progressFn != null) {
           progressFn.call(this, 1, progress * anim.direction, anim.targetSlide);
         }
-        if (progress === 1) {
+        if (progress >= 1) {
           this.currentAnimation = null;
           cancelAnimationFrame(id);
           afterFn = this.opts.effect.after;
@@ -385,7 +386,6 @@
           return;
         }
         touch = this.currentTouchEvent;
-        this.currentTouchEvent = null;
         progress = (event.changedTouches[0].pageX - touch.touchX) / this.el.clientWidth;
         timePassed = event.timeStamp - touch.touchStart;
         progressAbs = Math.abs(progress);
@@ -422,7 +422,11 @@
           direction: direction,
           progress: progress,
           durationMod: durationMod
-        });
+        }, (function(_this) {
+          return function() {
+            return _this.currentTouchEvent = null;
+          };
+        })(this));
         if (this.opts.preventScroll) {
           return event.preventDefault();
         }
