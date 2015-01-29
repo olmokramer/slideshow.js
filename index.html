@@ -90,13 +90,13 @@
   </div>
   <div id="prev1" class="button">PREV</div>
   <div id="next1" class="button">NEXT</div>
-  <pre><code class="js">slidesContainer1 = document.querySelector('.slides1');
-slideshow1 = new Slideshow(slidesContainer1);
-document.querySelector('#next1').addEventListener('click', function() {
-  slideshow1.slideToNext();
+  <pre><code class="js">slidesContainer = document.querySelector('.slides');
+slideshow = new Slideshow(slidesContainer);
+document.querySelector('#next').addEventListener('click', function() {
+  slideshow.slideToNext();
 });
-document.querySelector('#prev1').addEventListener('click', function() {
-  slideshow1.slideToPrev();
+document.querySelector('#prev').addEventListener('click', function() {
+  slideshow.slideToPrev();
 });</code></pre>
   <div class="space"></div>
   <h1>Demo 2: Fade in/out slideshow</h1>
@@ -119,20 +119,28 @@ document.querySelector('#prev1').addEventListener('click', function() {
   </div>
   <div id="prev2" class="button">PREV</div>
   <div id="next2" class="button">NEXT</div>
-  <pre><code class="js">slidesContainer2 = document.querySelector('.slides2');
-slideshow2 = new Slideshow(slidesContainer2, {
+  <pre><code class="js">slidesContainer = document.querySelector('.slides');
+slideshow = new Slideshow(slidesContainer, {
   animationDuration: 600,
   effect: {
-    // see README.md for comments
     before: function(slideState, slideElement) {
       if (slideState === 0) {
+        // this is the currently visible slide. we want it to
+        // be totally opaque before animating it to totally transparent.
         slideElement.style.opacity = 1;
       } else {
+        // this is the slide that will become opaque, but first
+        // it should be transparent.
         slideElement.style.opacity = 0;
       }
     },
     progress: function(slideState, progress, slideElement) {
+      // get the absolute value of the property, because we are
+      // not interested in left/right
       progress = Math.abs(progress);
+      // the slide that was visible at first should become
+      // more and more transparent as we progress further.
+      // the other element should get more opaque.
       if (slideState === 0) {
         slideElement.style.opacity = 1 - progress;
       } else {
@@ -140,19 +148,22 @@ slideshow2 = new Slideshow(slidesContainer2, {
       }
     },
     after: function(slideState, slideElement) {
+      // the new slide should be on top for save image (etc.) to work
       if (slideState === 0) {
-        slideElement.style.zIndex = 0;
+        // this is the previous slide, so send down
+        slideElement.style.zIndex = 0
       } else {
-        slideElement.style.zIndex = 1;
+        // this is the next slide so send to top
+        slideElement.style.zIndex = 1
       }
     }
   }
 });
-document.querySelector('#next2').addEventListener('click', function() {
-  slideshow2.slideToNext();
+document.querySelector('#next').addEventListener('click', function() {
+  slideshow.slideToNext();
 });
-document.querySelector('#prev2').addEventListener('click', function() {
-  slideshow2.slideToPrev();
+document.querySelector('#prev').addEventListener('click', function() {
+  slideshow.slideToPrev();
 });</code></pre>
   <script>
     slidesContainer1 = document.querySelector('.slides1');
