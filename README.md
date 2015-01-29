@@ -183,9 +183,11 @@ The slideshow created with `new Slideshow(element, options)` has the following m
 - getPrevSlide(): get the slide before the currently visible slide
 - getFirstSlide(): get the first slide in the slideshow
 - getLastSlide(): get the last slide in the slideshow
-- slideTo(index, callback): slide to slide at &lt;index&gt;
-- slideToNext(callback): slide to the next slide
-- slideToPrev(callback): slide to the previous slide
+- goTo(index, callback): slide to slide at &lt;index&gt;
+- goToNext(callback): slide to the next slide
+- goToPrev(callback): slide to the previous slide
+- goToFirst(callback): slide to the first slide
+- goToLast(callback): slide to the last slide
 
 ## Acknowledgement
 
