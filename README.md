@@ -27,7 +27,7 @@ Support for touch events will be automatically detected, but it can be explicitl
 ## Options
 
 | option | required | type | default | description |
-|---|---|---|
+|---|---|---|---|---|
 | touchEnabled | no | boolean | true | Enable or disable touch events on the slideshow. |
 | preventDefaultEvents | no | boolean | true | Prevent default events on the slideshow element. |
 | animationDuration | no | number | 400 | The duration of the animation. |
@@ -39,7 +39,7 @@ Support for touch events will be automatically detected, but it can be explicitl
 The conditions array is used to determine if after a touch event, it should slide to the next image, or slide the current image back. The array should consist of objects, each of which can have up to three keys:
 
 | key | required | type | default | description |
-|---|---|
+|---|---|---|---|---|
 | progress | yes | float | no default value | The minimum percentage of the slideshow element's width (height will also be supported) that the user must have touched the slideshow. Between 0 and 1. |
 | time | no | int | Infinity | The maximum duration of the touch event. |
 | durationModifier | no | float | 1 | Modifier for the animation duration, if this condition passes. |
