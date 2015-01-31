@@ -77,7 +77,7 @@ prefix = do (root = window ? this) ->
     for vendor in ['moz', 'webkit', 'khtml', 'o', 'ms']
       prefixed = "#{vendor}#{prop}"
       return prefixes[prop] = prefixed if prefixed of style
-    prefixes[prop] = false
+    prefixes[prop] = falsedistance
 
 # end vendorPrefix
 
@@ -102,14 +102,14 @@ factory = (document) ->
       preventScroll: true # call event.preventDefault in the touch events
       animationDuration: 400 # duration of the animation
       conditions: [ # conditions array, see README.md
-        distance: .1
+        progress: .1
         time: 250
-        durationMod: .5
+        durationModifier: .5
       ,
-        distance: .3
+        progress: .3
         time: 500
       ,
-        distance: .5
+        progress: .5
       ]
       effect: # effect object, see README.md
         before: (slideState, slideElement) ->
@@ -205,7 +205,6 @@ factory = (document) ->
       duration = Math.max 1, @opts.animationDuration * (1 - progress) * durationMod
       # slides shouldn't be prepared if this is called from a touch event
       # because this has already happened in touchStart
-      console.log @currentTouchEvent?
       unless @currentTouchEvent?
         beforeFn = @opts.effect.before
         beforeFn?.call @, 0, currentSlide
@@ -259,21 +258,23 @@ factory = (document) ->
         touchY: event.touches[0].pageY
       }
       # prevent default behavior if it's set in options
-      event.preventDefault() if @opts.preventScroll
+      event.preventDefault() if @opts.preventDefaultEvents
 
     touchmove = (event) ->
       # do nothing if an animation is in progress, or there's no touch event in progress yet (which souldn't happen)
       return if @currentAnimation or not @currentTouchEvent?
       touch = @currentTouchEvent
       # calculate the progress based on the distance touched
-      progress = (event.touches[0].pageX - touch.touchX) / @el.clientWidth
+      progress =
+        x: (event.touches[0].pageX - touch.touchX) / @el.clientWidth
+        y: (event.touches[0].pageY - touch.touchY) / @el.clientHeight
       # animate the slide
       requestAnimationFrame =>
         progressFn = @opts.effect.progress
         progressFn.call @, 0, progress, touch.currentSlide
         progressFn.call @, 1, progress, if progress < 0 then touch.nextSlide else touch.prevSlide
       # prevent default behavior if it's set in options
-      event.preventDefault() if @opts.preventScroll
+      event.preventDefault() if @opts.preventDefaultEvents
 
     touchend = (event) ->
       # do nothing if an animation is in progress, or there's no touch event in progress yet (which souldn't happen)
@@ -286,9 +287,9 @@ factory = (document) ->
       progressAbs = Math.abs progress
       # check progress and timePassed against the conditions
       for cond in @opts.conditions
-        if progressAbs > cond.distance and timePassed < (cond.time ? Infinity)
+        if progressAbs > cond.progress and timePassed < (cond.time ? Infinity)
           # one condition passed so set durationMod from that condition
-          durationMod = cond.durationMod ? 1
+          durationMod = cond.durationModifier ? 1
           break
       # at this point, durationMod is only set if we matched a condition
       # so slide to the next slide
@@ -319,7 +320,7 @@ factory = (document) ->
       # call the animateSlides function with the parameters
       animateSlides.call @, currentSlide, targetSlide, {direction, progress, durationMod}, => @currentTouchEvent = null
       # prevent default behavior if set in options
-      event.preventDefault() if @opts.preventScroll
+      event.preventDefault() if @opts.preventDefaultEvents
 
     # end private methods
 
@@ -397,6 +398,9 @@ factory = (document) ->
       # slide to the right
       direction = -1
       animateSlides.call @, currentSlide, lastSlide, {direction}, cb
+
+    @registerAsJQueryPlugin: ($, methodName) ->
+      $.fn[methodName] = (opts) -> (new Slideshow container, opts for container in @)
 
 # amd, commonjs and browser environment support
 do (root = this, factory) ->
