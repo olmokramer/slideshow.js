@@ -1,4 +1,4 @@
-# Slideshow.js 1.4.0
+# Slideshow.js 1.5.0
 
 Slideshow.js is a javascript slideshow, with touch/swipe support. [Demo here](https://olmokramer.github.io/slideshow.js)
 
@@ -26,109 +26,102 @@ Support for touch events will be automatically detected, but it can be explicitl
 
 ## Options
 
-Everything optional, but for the effect all 3 functions must be provided.
-- `touchEnabled`: (boolean) enable/disable touch events (default: true (enabled))
-- `preventScroll`: (boolean) enable/disable event.preventDefault() on the touch events (default: true (disabled))
-- `animationDuration`: (int) duration of the sliding animation (default: 400)
-- [`effect`](README.md#effect): (object) define the animation functions (default: slide left to right and back)
-- [`conditions`](README.md#conditions): (array) conditions to determine if a slide should occur after a touch event
+| option | required | type | default | description |
+|---|---|---|
+| touchEnabled | no | boolean | true | Enable or disable touch events on the slideshow. |
+| preventDefaultEvents | no | boolean | true | Prevent default events on the slideshow element. |
+| animationDuration | no | number | 400 | The duration of the animation. |
+| effect | no | object | ... | Object that defines the animation of the slides. See [Effect](#effect). |
+| conditions | no | array | ... | Conditions to determine if a slide should occur after a touch event. See [Conditions](#conditions) |
 
 ## <a name="conditions"></a>Conditions
 
 The conditions array is used to determine if after a touch event, it should slide to the next image, or slide the current image back. The array should consist of objects, each of which can have up to three keys:
 
-- distance: (float, required) the minimum percentage of the slideshow (in the x direction, y direction will also be supported) the touch must have traveled. values should be between 0 and 1
-- time: (int) the maximum duration of the touch event (default: Infinity)
-- durationMod: (float) modifier for the animation duration, if this condition is met (default: 1)
+| key | required | type | default | description |
+|---|---|
+| progress | yes | float | no default value | The minimum percentage of the slideshow element's width (height will also be supported) that the user must have touched the slideshow. Between 0 and 1. |
+| time | no | int | Infinity | The maximum duration of the touch event. |
+| durationModifier | no | float | 1 | Modifier for the animation duration, if this condition passes. |
 
-When a touch event ends, the total distance and duration of the touch event will be measured. The distance is divided by the width of the slides' parent, to get the distance.
+When a touch event ends, the total distance and duration of the touch event will be measured. The distance is divided by the width of the slides' parent, to get the `progress`.
 
-Each condition in the array is compared to the touch event according to `touchEvent.distance > condition.distance && touchEvent.duration < condition.time`. When this evaluates to true, the slideshow will proceed to animate to the next slide, when false the slideshow will return to its previous state, the current slide.
+Each condition in the array is compared to the touch event according to `touchEventProgress > condition.progress && touchEventDuration < condition.time`. When this evaluates to true, the slideshow will proceed to animate to the next slide, when false the slideshow will return to the current slide.
 
 #### Example
 
-We have the following conditions set:
+This is de default conditions array.
 
-```
-[{
-  distance: .5
-}, {
-  distance: .3,
-  time: 500,
-  durationMod: .5
-}, {
-  distance: .1,
+```js
+conditions: [{
+  progress: .1,
   time: 250,
-  durationMod: .5
+  durationModifier: .5
+}, {
+  progress: .3,
+  time: 500
+}, {
+  progress: .5
 }]
 ```
 
-The user swiped the slideshow over 40% of its width, so `distance = 0.4`. He did this in `duration = 300ms`.
+Let's say the user swiped the slideshow over 40% of its width, so `progress = 0.4`, in `duration = 300ms`.
 
-The first condition is checked. No time is specified, so only the distance is taken into account. The touch event's distance is 0.4, which is smaller than the 0.5 from the condition, so the condition fails.
-
-Next condition: the distance (0.4) is larger than the conditions distance (0.3). Also, the touch duration (300ms) is smaller than the time condition (500ms). The condition passes, so the slideshow slides to the next image. The condition has a durationMod of 0.5 so the animation will be twice as fast.
+While `progress` (`= .4`) is greater than `condition.distance` (`= .1`), `duration` (`= 300`) isn't less than `condition.time` (`= 250`), so the first condition fails. In the second condition, both pass and the slideshow goes to the next slide.
 
 ## <a name="effect"></a>Effect
 
 The effect option is an object with three functions:
 
-- `before`: (function) executed right before the animation
-- `progress`: (function) the actual animation function
-- `after`: (function) executed right after the animation
+| name | description |
+|---|---|
+| before | Executed right before the animation starts.|
+| progress | The actual animation function. |
+| after | Executed right after the animation finishes. |
 
-Be sure to prepare the slides with css, so if you're going to animate opacity, make the slides transparent with a css rule.
+#### effect.before(slideState, slideElement)
 
-#### effect.before
+Executed right before the animation starts. You can put the slide elements that are going to be animated in the right place with this function.
 
-Arguments:
-
-1. slideState: (int) -1, 0 or 1 where:
-  - a value of -1 indicates this is the slide before the currently visible slide
-  - a value of 0 indicates this is the currently visible slide
-  - a value of 1 indicates this is the slide after the currently visible slide
-2. slideElement: (HTMLElement) this slide's DOM object
+| param | type | description |
+|---|---|---|
+| slideState | int | `-1`, `0` or `1`, where `-1` means `slideElement` is the previous slide, `0` means `slideElement` is the current slide and `1` means `slideElement` is the next slide. |
+| slideElement | HTMLElement | The slide's DOM element. |
 
 The values of slideState and their corresponding slides in the before function:
 
 ![different values for slideState in the before function](img/before.png)
 
-The before function is called just before animating the slides. Depending of the type of action that activates the animation (programmatically or by touch) it is called with different elements.
-When programmatically sliding to a new slide, it is called on the currently visible slide, and on the targeted slide.
-When touching to slide, it is called on the currently visible slide, and its immediate neighbours.
+#### effect.progress(slideState, progress, slideElement)
 
-This function is mostly used to put the slide elements in place before animating them.
+The actual animation function. This function is called in a `requestAnimationFrame` loop. The plugin provides it's own fallback for `requestAnimationFrame`.
 
-#### effect.progress
+| param | type | description |
+|---|---|---|
+| slideState | int | `0` or `1`, where 0 means `slideElement` is the slide that is going away and 1 means `slideElement` is the slide that is coming into view. |
+| progress | number | The progress of the animation, anywhere between `-1` and `1`. `0` means nothing has happened yet and both `-1` and `1` mean that the animation has finished. A negative number indicates going to the previous slide, a positive number indicates going to the next slide. |
+| slideElement | HTMLElement | The slide's DOM element. |
 
 Arguments:
-
-1. slideState: (int) 0 or 1 where:
-- a value of 0 indicates this is the slide that is currently moving away
-- a value of 1 indicates this is the slide that is currently moving in
-2. progress: (float) can be any value between -1 and 1. A negative value indicates movement to the right (or to a previous slide) where a positive value indicates the opposite.
-3. slideElement: (HTMLElement) this slide's DOM object
 
 The values of slideState and their corresponding slides in the progress function (the slides are moving to the right in this image):
 
 ![different values for slideState in the before function](img/progress.png)
 
-The progress function is where the animating happens. Use it to modify properties of the slideElement, according to the progress. Lightweight progress functions increase animation performance.
+The progress function is where the animating happens. Use it to modify properties of the `slideElement.style`, according to the progress. Lightweight progress functions increase animation performance.
 
-#### effect.after
+#### effect.after(slideState, slideElement)
 
-Arguments:
+Executed right after the animation finishes. You can clean up here, for example hide the previous slide.
 
-1. slideState: (int) 0 or 1 where:
-  - a value of 0 indicates this is the slide that was just moved away
-  - a value of 1 indicates this is the slide that was just moved in
-2. slideElement: (HTMLElement) this slide's DOM object
+| param | type | description |
+|---|---|---|
+| slideState | int | `0` or `1`, where `0` means `slideElement` is the slide that moved away and `1` means `slideElement` is the slide that moved in. |
+| slideElement | HTMLElement | The slide's DOM element. |
 
 The values of slideState and their corresponding slides in the after function (a slide to the left has just occurred in this image):
 
 ![different values for slideState in the before function](img/after.png)
-
-The after function is called just after animating the slides. It is used to clean up some stuff if necessary.
 
 #### Example
 
@@ -175,19 +168,97 @@ effect: {
 
 ## Methods
 
-The slideshow created with `new Slideshow(element, options)` has the following methods:
+Instances of `Slideshow` have the following methods.
 
-- getSlide(index): get slide at &lt;index&gt;
-- getCurrentSlide(): get the currently visible slide
-- getNextSlide(): get the slide after the currently visible slide
-- getPrevSlide(): get the slide before the currently visible slide
-- getFirstSlide(): get the first slide in the slideshow
-- getLastSlide(): get the last slide in the slideshow
-- goTo(index, callback): slide to slide at &lt;index&gt;
-- goToNext(callback): slide to the next slide
-- goToPrev(callback): slide to the previous slide
-- goToFirst(callback): slide to the first slide
-- goToLast(callback): slide to the last slide
+#### getSlide(index)
+
+Gets the element of the slide at given index. Applies modulo to the index.
+
+| param  | description  |
+|---|---|
+| index  | The index of the slide to return. Starts at 0  |
+
+#### getCurrentSlide()
+
+Gets the element of the currently visible slide
+
+#### getNextSlide()
+
+Gets the slide after the currently visible one
+
+#### getPrevSlide()
+
+Gets the slide before the currently visible one
+
+#### getFirstSlide()
+
+Gets the first slide. Equivalent to `getSlide(0)`
+
+#### getLastSlide()
+
+Gets the last slide. Equivalent to `getSlide(slides.length - 1)`
+
+#### goTo(index, callback)
+
+Go to the slide at given index. Calls callback when the animation is finished.
+
+| param  | description  |
+|---|---|
+| index  | index of the target slide  |
+| callback  | callback function, called when the animation is finished  |
+
+#### goToNext(callback)
+
+Go to the next slide. Continues with first slide if currently on last slide.
+
+| param  | description  |
+|---|---|
+| callback  | callback function, called when the animation is finished  |
+
+#### goToPrev(callback)
+
+Go to the previous slide. Continues with last slide if currently on first slide.
+
+| param  | description  |
+|---|---|
+| callback  | callback function, called when the animation is finished  |
+
+#### goToFirst
+
+Go to the first slide.
+
+| param  | description  |
+|---|---|
+| callback  | callback function, called when the animation is finished  |
+
+#### goToLast
+
+Go to the last slide.
+
+| param  | description  |
+|---|---|
+| callback  | callback function, called when the animation is finished  |
+
+## Class methods
+
+The `Slideshow` class itself has the following methods.
+
+#### Slideshow.registerAsJQueryPlugin(jQuery, methodName)
+
+Registers slideshow.js as a jQuery plugin, to be called with `jQuery[methodName](options)`
+
+| param | description |
+|---|---|
+| jQuery | The jQuery object to extend. |
+| methodName | The name of the plugin method. The method returns an array of `Slideshow` instances. |
+
+#### Example
+
+```js
+Slideshow.registerAsJQueryPlugin(window.jQuery, 'Slideshow');
+
+$('.slideshow-container').Slideshow(slideshowOptions);
+```
 
 ## Acknowledgement
 
