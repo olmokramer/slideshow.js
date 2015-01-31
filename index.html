@@ -93,10 +93,10 @@
   <pre><code class="js">slidesContainer = document.querySelector('.slides');
 slideshow = new Slideshow(slidesContainer);
 document.querySelector('#next').addEventListener('click', function() {
-  slideshow.slideToNext();
+  slideshow.goToNext();
 });
 document.querySelector('#prev').addEventListener('click', function() {
-  slideshow.slideToPrev();
+  slideshow.goToPrev();
 });</code></pre>
   <div class="space"></div>
   <h1>Demo 2: Fade in/out slideshow</h1>
@@ -160,19 +160,19 @@ slideshow = new Slideshow(slidesContainer, {
   }
 });
 document.querySelector('#next').addEventListener('click', function() {
-  slideshow.slideToNext();
+  slideshow.goToNext();
 });
 document.querySelector('#prev').addEventListener('click', function() {
-  slideshow.slideToPrev();
+  slideshow.goToPrev();
 });</code></pre>
   <script>
     slidesContainer1 = document.querySelector('.slides1');
     slideshow1 = new Slideshow(slidesContainer1);
     document.querySelector('#next1').addEventListener('click', function() {
-      slideshow1.slideToNext();
+      slideshow1.goToNext();
     });
     document.querySelector('#prev1').addEventListener('click', function() {
-      slideshow1.slideToPrev();
+      slideshow1.goToPrev();
     });
     slidesContainer2 = document.querySelector('.slides2');
     slideshow2 = new Slideshow(slidesContainer2, {
@@ -195,22 +195,19 @@ document.querySelector('#prev').addEventListener('click', function() {
           }
         },
         after: function(slideState, slideElement) {
-          // the new slide should be on top for save image (etc.) to work
           if (slideState === 0) {
-            // this is the previous slide, so send down
             slideElement.style.zIndex = 0;
           } else {
-            // this is the next slide so send to top
             slideElement.style.zIndex = 1;
           }
         }
       }
     });
     document.querySelector('#next2').addEventListener('click', function() {
-      slideshow2.slideToNext();
+      slideshow2.goToNext();
     });
     document.querySelector('#prev2').addEventListener('click', function() {
-      slideshow2.slideToPrev();
+      slideshow2.goToPrev();
     });
   </script>
 </body>
