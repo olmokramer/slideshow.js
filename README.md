@@ -6,7 +6,7 @@ Slideshow.js is a javascript slideshow, with touch/swipe support. [Demo here](ht
 
 Create some slides in a container:
 
-```
+```html
 <div class="slides-container">
   <div class="slide"></div>
   <div class="slide"></div>
@@ -17,7 +17,7 @@ Create some slides in a container:
 
 Then create a new slideshow from the container element:
 
-```
+```js
 var container = document.querySelector('.slides-container')
 var slideshow = new Slideshow(container, options);
 ```
@@ -129,7 +129,7 @@ The values of slideState and their corresponding slides in the after function (a
 
 Instead of a slide left to right, we want a fade. You can check this out in the demo (the second gallery). It could be accomplished like this:
 
-```
+```js
 effect: {
   before: function(slideState, slideElement) {
     if (slideState === 0) {
