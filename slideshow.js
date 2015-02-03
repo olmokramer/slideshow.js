@@ -133,6 +133,7 @@
         touchEnabled: true,
         preventScroll: true,
         animationDuration: 400,
+        onChange: function() {},
         conditions: [
           {
             progress: .1,
@@ -327,6 +328,7 @@
           if (typeof anim.callback === "function") {
             anim.callback();
           }
+          this.opts.onChange.call(this);
           return setCurrentSlide.call(this, anim.targetSlide);
         }
       };
