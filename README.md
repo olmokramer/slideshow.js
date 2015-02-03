@@ -263,3 +263,8 @@ $('.slideshow-container').Slideshow(slideshowOptions);
 ## Acknowledgement
 
 A lot of credit goes to [slides.js](http://slidesjs.com/). That project has been a huge inspiration in the creation of this one. I just thought it wasn't customisable enough and I wanted to get rid of the jQuery requirement, so I created this one.
+
+## License
+
+This project is licensed under the [MIT license](LICENSE).<br>
+&copy; 2015, Olmo Kramer
