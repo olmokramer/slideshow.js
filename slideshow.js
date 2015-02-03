@@ -133,6 +133,8 @@
         touchEnabled: true,
         preventScroll: true,
         animationDuration: 400,
+        onDidChange: function() {},
+        onWillChange: function() {},
         conditions: [
           {
             progress: .1,
@@ -214,29 +216,33 @@
       };
 
       initSlides = function() {
-        var afterFn, beforeFn, i, slide, _i, _len, _ref, _ref1;
+        var afterFn, beforeFn, i, slide, _i, _len, _ref, _ref1, _results;
         this.el.style.overflow = 'hidden';
         beforeFn = this.opts.effect.before;
         afterFn = this.opts.effect.after;
         this.slides = (_ref = this.el.children) != null ? _ref : this.el.childNodes;
         this.current = 0;
         _ref1 = this.slides;
+        _results = [];
         for (i = _i = 0, _len = _ref1.length; _i < _len; i = ++_i) {
           slide = _ref1[i];
           if (!(i !== this.current)) {
             continue;
           }
-          if (beforeFn != null) {
-            beforeFn.call(this, 1, slide);
-          }
-          if (afterFn != null) {
-            afterFn.call(this, 0, slide);
+          slide.style.position = 'absolute';
+          if (i === this.current) {
+            if (beforeFn != null) {
+              beforeFn.call(this, 0, this.slides[this.current]);
+            }
+            _results.push(afterFn != null ? afterFn.call(this, 1, this.slides[this.current]) : void 0);
+          } else {
+            if (beforeFn != null) {
+              beforeFn.call(this, 1, slide);
+            }
+            _results.push(afterFn != null ? afterFn.call(this, 0, slide) : void 0);
           }
         }
-        if (beforeFn != null) {
-          beforeFn.call(this, 0, this.slides[this.current]);
-        }
-        return afterFn != null ? afterFn.call(this, 1, this.slides[this.current]) : void 0;
+        return _results;
       };
 
       initTouchEvents = function() {
@@ -270,6 +276,7 @@
         if (this.currentAnimation != null) {
           return;
         }
+        this.opts.onWillChange.call(this);
         if (progress == null) {
           progress = 0;
         }
@@ -323,6 +330,7 @@
           if (typeof anim.callback === "function") {
             anim.callback();
           }
+          this.opts.onDidChange.call(this);
           return setCurrentSlide.call(this, anim.targetSlide);
         }
       };
@@ -475,47 +483,23 @@
       };
 
       Slideshow.prototype.goToNext = function(cb) {
-        var currentSlide, direction, nextSlide;
-        currentSlide = this.getCurrentSlide();
-        nextSlide = this.getNextSlide();
-        direction = -1;
-        return animateSlides.call(this, currentSlide, nextSlide, {
-          direction: direction
-        }, cb);
+        return this.goTo(this.current + 1, cb);
       };
 
       Slideshow.prototype.goToPrev = function(cb) {
-        var currentSlide, direction, prevSlide;
-        currentSlide = this.getCurrentSlide();
-        prevSlide = this.getPrevSlide();
-        direction = 1;
-        return animateSlides.call(this, currentSlide, prevSlide, {
-          direction: direction
-        }, cb);
+        return this.goTo(this.current - 1, cb);
       };
 
       Slideshow.prototype.goToFirst = function(cb) {
-        var currentSlide, direction, firstSlide;
-        currentSlide = this.getCurrentSlide();
-        firstSlide = this.getFirstSlide();
-        direction = 1;
-        return animateSlides.call(this, currentSlide, firstSlide, {
-          direction: direction
-        }, cb);
+        return this.goTo(0, cb);
       };
 
       Slideshow.prototype.goToLast = function(cb) {
-        var currentSlide, direction, lastSlide;
-        currentSlide = this.getCurrentSlide();
-        lastSlide = this.getLastSlide();
-        direction = -1;
-        return animateSlides.call(this, currentSlide, lastSlide, {
-          direction: direction
-        }, cb);
+        return this.goTo(this.slides.length - 1, cb);
       };
 
-      Slideshow.registerAsJQueryPlugin = function($, methodName) {
-        return $.fn[methodName] = function(opts) {
+      Slideshow.registerAsJQueryPlugin = function(jQuery, methodName) {
+        return jQuery.fn[methodName] = function(opts) {
           var container, _i, _len, _results;
           _results = [];
           for (_i = 0, _len = this.length; _i < _len; _i++) {
