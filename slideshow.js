@@ -215,34 +215,37 @@
       };
 
       initContainer = function() {
-        this.el.style.position = 'absolute';
         return this.el.style.overflow = 'hidden';
       };
 
       initSlides = function() {
-        var afterFn, beforeFn, i, slide, _i, _len, _ref, _ref1;
+        var afterFn, beforeFn, i, slide, _i, _len, _ref, _ref1, _results;
         this.el.style.overflow = 'hidden';
         beforeFn = this.opts.effect.before;
         afterFn = this.opts.effect.after;
         this.slides = (_ref = this.el.children) != null ? _ref : this.el.childNodes;
         this.current = 0;
         _ref1 = this.slides;
+        _results = [];
         for (i = _i = 0, _len = _ref1.length; _i < _len; i = ++_i) {
           slide = _ref1[i];
           if (!(i !== this.current)) {
             continue;
           }
-          if (beforeFn != null) {
-            beforeFn.call(this, 1, slide);
-          }
-          if (afterFn != null) {
-            afterFn.call(this, 0, slide);
+          slide.style.position = 'absolute';
+          if (i === this.current) {
+            if (beforeFn != null) {
+              beforeFn.call(this, 0, this.slides[this.current]);
+            }
+            _results.push(afterFn != null ? afterFn.call(this, 1, this.slides[this.current]) : void 0);
+          } else {
+            if (beforeFn != null) {
+              beforeFn.call(this, 1, slide);
+            }
+            _results.push(afterFn != null ? afterFn.call(this, 0, slide) : void 0);
           }
         }
-        if (beforeFn != null) {
-          beforeFn.call(this, 0, this.slides[this.current]);
-        }
-        return afterFn != null ? afterFn.call(this, 1, this.slides[this.current]) : void 0;
+        return _results;
       };
 
       initTouchEvents = function() {

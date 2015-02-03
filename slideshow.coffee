@@ -169,7 +169,6 @@ factory = (document) ->
       initTouchEvents.call @
 
     initContainer = ->
-      @el.style.position = 'absolute'
       @el.style.overflow = 'hidden'
 
     initSlides = ->
@@ -181,14 +180,15 @@ factory = (document) ->
       @slides = @el.children ? @el.childNodes
       @current = 0
       for slide, i in @slides when i isnt @current
-        # call the before and after functions once on all but the first
-        # slide, so all slides
+        # call the before and after functions once on all slides, so all slides
         # are positioned properly
-        beforeFn?.call @, 1, slide
-        afterFn?.call @, 0, slide
-      # call the before on the first slide to properly position it
-      beforeFn?.call @, 0, @slides[@current]
-      afterFn?.call @, 1, @slides[@current]
+        slide.style.position = 'absolute'
+        if i is @current
+          beforeFn?.call @, 0, @slides[@current]
+          afterFn?.call @, 1, @slides[@current]
+        else
+          beforeFn?.call @, 1, slide
+          afterFn?.call @, 0, slide
 
     initTouchEvents = ->
       # return unless TouchEvent is supported and it is not explicitly disabled
