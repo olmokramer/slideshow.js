@@ -199,8 +199,6 @@ factory = (document) ->
     animateSlides = (currentSlide, targetSlide, {direction, progress, durationMod}, callback) ->
       # return if an animation is in progress
       return if @currentAnimation?
-      #call the onChange method
-      this.opts.onChange.call @
       # progress and durationMod are only passed from a touch event
       progress ?= 0
       durationMod ?= 1
@@ -238,6 +236,8 @@ factory = (document) ->
         anim.callback?()
         # set the new currentSlide
         setCurrentSlide.call @, anim.targetSlide
+        #call the onChange method
+        this.opts.onChange.call @
 
     touchstart = (event) ->
       # do nothing if an animation or touch event is currently in progress

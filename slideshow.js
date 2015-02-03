@@ -271,7 +271,6 @@
         if (this.currentAnimation != null) {
           return;
         }
-        this.opts.onChange.call(this);
         if (progress == null) {
           progress = 0;
         }
@@ -325,7 +324,8 @@
           if (typeof anim.callback === "function") {
             anim.callback();
           }
-          return setCurrentSlide.call(this, anim.targetSlide);
+          setCurrentSlide.call(this, anim.targetSlide);
+          return this.opts.onChange.call(this);
         }
       };
 
