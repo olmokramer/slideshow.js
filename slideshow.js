@@ -2,8 +2,7 @@
   'use strict';
   var bind, extend, factory, indexOf, isNaN, isNumber, isObject, prefix,
     __slice = [].slice,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    __hasProp = {}.hasOwnProperty;
 
   (function(root) {
     var i, lastTime, vendor, vendors, _ref;
@@ -111,7 +110,7 @@
   factory = function(document) {
     var Slideshow;
     return Slideshow = (function() {
-      var animateSlides, defaults, init, initSlides, initTouchEvents, nextFrame, setCurrentSlide, touchend, touchmove, touchstart;
+      var animateSlides, init, initContainer, initSlides, initTouchEvents, nextFrame, setCurrentSlide, touchend, touchmove, touchstart;
 
       function Slideshow(element, opts) {
         if (element.nodeType !== 1) {
@@ -130,7 +129,7 @@
         init.call(this);
       }
 
-      defaults = {
+      Slideshow.defaults = {
         touchEnabled: true,
         preventScroll: true,
         animationDuration: 400,
@@ -210,8 +209,14 @@
       };
 
       init = function() {
+        initContainer.call(this);
         initSlides.call(this);
         return initTouchEvents.call(this);
+      };
+
+      initContainer = function() {
+        this.el.style.position = 'absolute';
+        return this.el.style.overflow = 'hidden';
       };
 
       initSlides = function() {
@@ -525,29 +530,6 @@
           }
           return _results;
         };
-      };
-
-      Slideshow.extend = function(instanceProperties, classProperties) {
-        var ExtendedSlideshow, key, val;
-        ExtendedSlideshow = (function(_super) {
-          __extends(ExtendedSlideshow, _super);
-
-          function ExtendedSlideshow() {
-            return ExtendedSlideshow.__super__.constructor.apply(this, arguments);
-          }
-
-          return ExtendedSlideshow;
-
-        })(Slideshow);
-        for (key in instanceProperties) {
-          val = instanceProperties[key];
-          ExtendedSlideshow.prototype[key] = val;
-        }
-        for (key in classProperties) {
-          val = classProperties[key];
-          ExtendedSlideshow[key] = val;
-        }
-        return ExtendedSlideshow;
       };
 
       return Slideshow;

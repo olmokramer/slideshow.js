@@ -94,9 +94,9 @@ factory = (document) ->
       # and go!
       init.call @
 
-    # private methods and variables
+    # default options
 
-    defaults =
+    @defaults:
       touchEnabled: true # enable touch events
       preventScroll: true # call event.preventDefault in the touch events
       animationDuration: 400 # duration of the animation
@@ -161,9 +161,16 @@ factory = (document) ->
           ###
           slideElement.style.display = if slideState > 0 then 'block' else 'none'
 
+    # private methods and variables
+
     init = ->
+      initContainer.call @
       initSlides.call @
       initTouchEvents.call @
+
+    initContainer = ->
+      @el.style.position = 'absolute'
+      @el.style.overflow = 'hidden'
 
     initSlides = ->
       # we don't want the slides to be visible outside their container
@@ -402,14 +409,6 @@ factory = (document) ->
 
     @registerAsJQueryPlugin: (jQuery, methodName) ->
       jQuery.fn[methodName] = (opts) -> (new Slideshow container, opts for container in @)
-
-    @extend: (instanceProperties, classProperties) ->
-      class ExtendedSlideshow extends Slideshow
-      for key, val of instanceProperties
-        ExtendedSlideshow::[key] = val
-      for key, val of classProperties
-        ExtendedSlideshow[key] = val
-      ExtendedSlideshow
 
 # amd, commonjs and browser environment support
 do (root = this, factory) ->
