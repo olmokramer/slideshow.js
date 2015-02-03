@@ -1,4 +1,3 @@
-# out: slideshow.js
 'use strict'
 # requestAnimationFrame polyfill
 # http://paulirish.com/2011/requestanimationframe-for-smart-animating/
@@ -399,8 +398,18 @@ factory = (document) ->
       direction = -1
       animateSlides.call @, currentSlide, lastSlide, {direction}, cb
 
-    @registerAsJQueryPlugin: ($, methodName) ->
-      $.fn[methodName] = (opts) -> (new Slideshow container, opts for container in @)
+    # class methods
+
+    @registerAsJQueryPlugin: (jQuery, methodName) ->
+      jQuery.fn[methodName] = (opts) -> (new Slideshow container, opts for container in @)
+
+    @extend: (instanceProperties, classProperties) ->
+      class ExtendedSlideshow extends Slideshow
+      for key, val of instanceProperties
+        ExtendedSlideshow::[key] = val
+      for key, val of classProperties
+        ExtendedSlideshow[key] = val
+      ExtendedSlideshow
 
 # amd, commonjs and browser environment support
 do (root = this, factory) ->

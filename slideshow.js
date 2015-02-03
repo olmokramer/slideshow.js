@@ -2,7 +2,8 @@
   'use strict';
   var bind, extend, factory, indexOf, isNaN, isNumber, isObject, prefix,
     __slice = [].slice,
-    __hasProp = {}.hasOwnProperty;
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   (function(root) {
     var i, lastTime, vendor, vendors, _ref;
@@ -514,8 +515,8 @@
         }, cb);
       };
 
-      Slideshow.registerAsJQueryPlugin = function($, methodName) {
-        return $.fn[methodName] = function(opts) {
+      Slideshow.registerAsJQueryPlugin = function(jQuery, methodName) {
+        return jQuery.fn[methodName] = function(opts) {
           var container, _i, _len, _results;
           _results = [];
           for (_i = 0, _len = this.length; _i < _len; _i++) {
@@ -524,6 +525,29 @@
           }
           return _results;
         };
+      };
+
+      Slideshow.extend = function(instanceProperties, classProperties) {
+        var ExtendedSlideshow, key, val;
+        ExtendedSlideshow = (function(_super) {
+          __extends(ExtendedSlideshow, _super);
+
+          function ExtendedSlideshow() {
+            return ExtendedSlideshow.__super__.constructor.apply(this, arguments);
+          }
+
+          return ExtendedSlideshow;
+
+        })(Slideshow);
+        for (key in instanceProperties) {
+          val = instanceProperties[key];
+          ExtendedSlideshow.prototype[key] = val;
+        }
+        for (key in classProperties) {
+          val = classProperties[key];
+          ExtendedSlideshow[key] = val;
+        }
+        return ExtendedSlideshow;
       };
 
       return Slideshow;
