@@ -100,7 +100,8 @@ factory = (document) ->
       touchEnabled: true # enable touch events
       preventScroll: true # call event.preventDefault in the touch events
       animationDuration: 400 # duration of the animation
-      onChange: ->
+      onDidChange: ->
+      onWillChange: ->
       conditions: [ # conditions array, see README.md
         progress: .1
         time: 250
@@ -199,6 +200,8 @@ factory = (document) ->
     animateSlides = (currentSlide, targetSlide, {direction, progress, durationMod}, callback) ->
       # return if an animation is in progress
       return if @currentAnimation?
+      # call onWillChange
+      @opts.onWillChange.call @
       # progress and durationMod are only passed from a touch event
       progress ?= 0
       durationMod ?= 1
@@ -234,7 +237,7 @@ factory = (document) ->
         afterFn?.call @, 0, anim.currentSlide
         afterFn?.call @, 1, anim.targetSlide
         anim.callback?()
-        @opts.onChange.call @
+        @opts.onDidChange.call @
         # set the new currentSlide
         setCurrentSlide.call @, anim.targetSlide
 

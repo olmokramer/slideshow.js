@@ -31,6 +31,8 @@ Support for touch events will be automatically detected, but it can be explicitl
 | touchEnabled | no | boolean | true | Enable or disable touch events on the slideshow. |
 | preventDefaultEvents | no | boolean | true | Prevent default events on the slideshow element. |
 | animationDuration | no | number | 400 | The duration of the animation. |
+| onWillChange | no | function | Fired when the animation is about to start, in the case of a touch event, this fires right after the `touchEnd` event. `this` refers to the slideshow instance. |
+| onDidChange | no | function | Fired when the animation is finished. `this` refers to the slideshow instance. |
 | effect | no | object | ... | Object that defines the animation of the slides. See [Effect](#effect). |
 | conditions | no | array | ... | Conditions to determine if a slide should occur after a touch event. See [Conditions](#conditions) |
 
