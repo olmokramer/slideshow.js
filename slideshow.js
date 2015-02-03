@@ -133,6 +133,7 @@
         touchEnabled: true,
         preventScroll: true,
         animationDuration: 400,
+        onChange: function() {},
         conditions: [
           {
             progress: .1,
@@ -270,6 +271,7 @@
         if (this.currentAnimation != null) {
           return;
         }
+        this.opts.onChange.call(this);
         if (progress == null) {
           progress = 0;
         }
