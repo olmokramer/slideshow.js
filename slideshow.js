@@ -484,43 +484,19 @@
       };
 
       Slideshow.prototype.goToNext = function(cb) {
-        var currentSlide, direction, nextSlide;
-        currentSlide = this.getCurrentSlide();
-        nextSlide = this.getNextSlide();
-        direction = -1;
-        return animateSlides.call(this, currentSlide, nextSlide, {
-          direction: direction
-        }, cb);
+        return this.goTo(this.current + 1, cb);
       };
 
       Slideshow.prototype.goToPrev = function(cb) {
-        var currentSlide, direction, prevSlide;
-        currentSlide = this.getCurrentSlide();
-        prevSlide = this.getPrevSlide();
-        direction = 1;
-        return animateSlides.call(this, currentSlide, prevSlide, {
-          direction: direction
-        }, cb);
+        return this.goTo(this.current - 1, cb);
       };
 
       Slideshow.prototype.goToFirst = function(cb) {
-        var currentSlide, direction, firstSlide;
-        currentSlide = this.getCurrentSlide();
-        firstSlide = this.getFirstSlide();
-        direction = 1;
-        return animateSlides.call(this, currentSlide, firstSlide, {
-          direction: direction
-        }, cb);
+        return this.goTo(0, cb);
       };
 
       Slideshow.prototype.goToLast = function(cb) {
-        var currentSlide, direction, lastSlide;
-        currentSlide = this.getCurrentSlide();
-        lastSlide = this.getLastSlide();
-        direction = -1;
-        return animateSlides.call(this, currentSlide, lastSlide, {
-          direction: direction
-        }, cb);
+        return this.goTo(this.slides.length - 1, cb);
       };
 
       Slideshow.registerAsJQueryPlugin = function(jQuery, methodName) {

@@ -362,9 +362,9 @@ factory = (document) ->
     getLastSlide: ->
       @slides[@slides.length - 1]
 
-    # slideTo and slideTo* initiate an animation
+    # goTo initiate an animation
 
-    # slide to the slide at index i
+    # go to the slide at index i
     goTo: (i, cb) ->
       return if i is @current
       currentSlide = @getCurrentSlide()
@@ -373,37 +373,21 @@ factory = (document) ->
       direction = if i < @current then 1 else -1
       animateSlides.call @, currentSlide, targetSlide, {direction}, cb
 
-    # slide to the next slide
+    # go to the next slide
     goToNext: (cb) ->
-      currentSlide = @getCurrentSlide()
-      nextSlide = @getNextSlide()
-      # slide to the left
-      direction = -1
-      animateSlides.call @, currentSlide, nextSlide, {direction}, cb
+      @goTo @current + 1, cb
 
-    # slide to the previous slide
+    # go to the previous slide
     goToPrev: (cb) ->
-      currentSlide = @getCurrentSlide()
-      prevSlide = @getPrevSlide()
-      # slide to the right
-      direction = 1
-      animateSlides.call @, currentSlide, prevSlide, {direction}, cb
+      @goTo @current - 1, cb
 
-    # slide to first slide
+    # go to first slide
     goToFirst: (cb) ->
-      currentSlide = @getCurrentSlide()
-      firstSlide = @getFirstSlide()
-      # slide to the right
-      direction = 1
-      animateSlides.call @, currentSlide, firstSlide, {direction}, cb
+      @goTo 0, cb
 
-    # slide to last slide
+    # go to last slide
     goToLast: (cb) ->
-      currentSlide = @getCurrentSlide()
-      lastSlide = @getLastSlide()
-      # slide to the right
-      direction = -1
-      animateSlides.call @, currentSlide, lastSlide, {direction}, cb
+      @goTo @slides.length - 1, cb
 
     # class methods
 
