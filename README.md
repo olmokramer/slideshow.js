@@ -176,9 +176,9 @@ Instances of `Slideshow` have the following methods.
 
 Gets the element of the slide at given index. Applies modulo to the index.
 
-| param  | description  |
+| param | description |
 |---|---|
-| index  | The index of the slide to return. Starts at 0  |
+| index | The index of the slide to return. Starts at 0 |
 
 #### getCurrentSlide()
 
@@ -204,42 +204,42 @@ Gets the last slide. Equivalent to `getSlide(slides.length - 1)`
 
 Go to the slide at given index. Calls callback when the animation is finished.
 
-| param  | description  |
+| param | description |
 |---|---|
-| index  | index of the target slide  |
-| callback  | callback function, called when the animation is finished  |
+| index | index of the target slide |
+| callback | callback function, called when the animation is finished |
 
 #### goToNext(callback)
 
 Go to the next slide. Continues with first slide if currently on last slide.
 
-| param  | description  |
+| param | description |
 |---|---|
-| callback  | callback function, called when the animation is finished  |
+| callback | callback function, called when the animation is finished |
 
 #### goToPrev(callback)
 
 Go to the previous slide. Continues with last slide if currently on first slide.
 
-| param  | description  |
+| param | description |
 |---|---|
-| callback  | callback function, called when the animation is finished  |
+| callback | callback function, called when the animation is finished |
 
 #### goToFirst
 
 Go to the first slide.
 
-| param  | description  |
+| param | description |
 |---|---|
-| callback  | callback function, called when the animation is finished  |
+| callback | callback function, called when the animation is finished |
 
 #### goToLast
 
 Go to the last slide.
 
-| param  | description  |
+| param | description |
 |---|---|
-| callback  | callback function, called when the animation is finished  |
+| callback | callback function, called when the animation is finished |
 
 ## Class methods
 
