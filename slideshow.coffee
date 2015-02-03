@@ -94,7 +94,7 @@ factory = (document) ->
       # and go!
       init.call @
 
-    # default options
+    # private methods and variables
 
     defaults =
       touchEnabled: true # enable touch events
@@ -160,8 +160,6 @@ factory = (document) ->
           if slideState === 1 then this is the currently visible slide and it must be visible
           ###
           slideElement.style.display = if slideState > 0 then 'block' else 'none'
-
-    # private methods and variables
 
     init = ->
       initContainer.call @
@@ -343,26 +341,21 @@ factory = (document) ->
       @slides[i]
 
     # get the currently visible slide
-    getCurrentSlide: ->
-      @slides[@current]
+    getCurrentSlide: -> @slides[@current]
 
     # get the slide after the currently visible one
-    getNextSlide: ->
-      @getSlide @current + 1
+    getNextSlide: -> @getSlide @current + 1
 
     # get the slide before the currently visible one
-    getPrevSlide: ->
-      @getSlide @current - 1
+    getPrevSlide: -> @getSlide @current - 1
 
     # get the first slide
-    getFirstSlide: ->
-      @slides[0]
+    getFirstSlide: -> @slides[0]
 
     # get the last slide
-    getLastSlide: ->
-      @slides[@slides.length - 1]
+    getLastSlide: -> @slides[@slides.length - 1]
 
-    # goTo initiate an animation
+    # goTo* initiates an animation
 
     # go to the slide at index i
     goTo: (i, cb) ->
@@ -374,20 +367,16 @@ factory = (document) ->
       animateSlides.call @, currentSlide, targetSlide, {direction}, cb
 
     # go to the next slide
-    goToNext: (cb) ->
-      @goTo @current + 1, cb
+    goToNext: (cb) -> @goTo @current + 1, cb
 
     # go to the previous slide
-    goToPrev: (cb) ->
-      @goTo @current - 1, cb
+    goToPrev: (cb) -> @goTo @current - 1, cb
 
     # go to first slide
-    goToFirst: (cb) ->
-      @goTo 0, cb
+    goToFirst: (cb) -> @goTo 0, cb
 
     # go to last slide
-    goToLast: (cb) ->
-      @goTo @slides.length - 1, cb
+    goToLast: (cb) -> @goTo @slides.length - 1, cb
 
     # class methods
 
