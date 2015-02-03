@@ -110,7 +110,7 @@
   factory = function(document) {
     var Slideshow;
     return Slideshow = (function() {
-      var animateSlides, defaults, init, initContainer, initSlides, initTouchEvents, nextFrame, setCurrentSlide, touchend, touchmove, touchstart;
+      var animateSlides, defaults, init, initSlides, initTouchEvents, nextFrame, setCurrentSlide, touchend, touchmove, touchstart;
 
       function Slideshow(element, opts) {
         if (element.nodeType !== 1) {
@@ -209,13 +209,8 @@
       };
 
       init = function() {
-        initContainer.call(this);
         initSlides.call(this);
         return initTouchEvents.call(this);
-      };
-
-      initContainer = function() {
-        return this.el.style.overflow = 'hidden';
       };
 
       initSlides = function() {

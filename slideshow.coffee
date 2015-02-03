@@ -162,12 +162,8 @@ factory = (document) ->
           slideElement.style.display = if slideState > 0 then 'block' else 'none'
 
     init = ->
-      initContainer.call @
       initSlides.call @
       initTouchEvents.call @
-
-    initContainer = ->
-      @el.style.overflow = 'hidden'
 
     initSlides = ->
       # we don't want the slides to be visible outside their container
