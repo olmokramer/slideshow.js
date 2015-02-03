@@ -96,7 +96,7 @@ factory = (document) ->
 
     # default options
 
-    @defaults:
+    defaults =
       touchEnabled: true # enable touch events
       preventScroll: true # call event.preventDefault in the touch events
       animationDuration: 400 # duration of the animation

@@ -110,7 +110,7 @@
   factory = function(document) {
     var Slideshow;
     return Slideshow = (function() {
-      var animateSlides, init, initContainer, initSlides, initTouchEvents, nextFrame, setCurrentSlide, touchend, touchmove, touchstart;
+      var animateSlides, defaults, init, initContainer, initSlides, initTouchEvents, nextFrame, setCurrentSlide, touchend, touchmove, touchstart;
 
       function Slideshow(element, opts) {
         if (element.nodeType !== 1) {
@@ -129,7 +129,7 @@
         init.call(this);
       }
 
-      Slideshow.defaults = {
+      defaults = {
         touchEnabled: true,
         preventScroll: true,
         animationDuration: 400,
