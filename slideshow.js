@@ -103,7 +103,7 @@
           return prefixes[prop] = prefixed;
         }
       }
-      return prefixes[prop] = falsedistance;
+      return prefixes[prop] = false;
     };
   })(typeof window !== "undefined" && window !== null ? window : this);
 
