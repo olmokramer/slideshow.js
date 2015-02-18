@@ -168,12 +168,21 @@ document.querySelector('#prev').addEventListener('click', function() {
   <script>
     slidesContainer1 = document.querySelector('.slides1');
     slideshow1 = new Slideshow(slidesContainer1);
-    document.querySelector('#next1').addEventListener('click', function() {
-      slideshow1.goToNext();
-    });
-    document.querySelector('#prev1').addEventListener('click', function() {
-      slideshow1.goToPrev();
-    });
+    if(window.addEventListener) {
+      document.querySelector('#next1').addEventListener('click', function() {
+        slideshow1.goToNext();
+      });
+      document.querySelector('#prev1').addEventListener('click', function() {
+        slideshow1.goToPrev();
+      });
+    } else {
+      document.querySelector('#next1').attachEvent('onclick', function() {
+        slideshow1.goToNext();
+      });
+      document.querySelector('#prev1').attachEvent('onclick', function() {
+        slideshow1.goToPrev();
+      });
+    }
     slidesContainer2 = document.querySelector('.slides2');
     slideshow2 = new Slideshow(slidesContainer2, {
       animationDuration: 600,
@@ -203,12 +212,21 @@ document.querySelector('#prev').addEventListener('click', function() {
         }
       }
     });
-    document.querySelector('#next2').addEventListener('click', function() {
-      slideshow2.goToNext();
-    });
-    document.querySelector('#prev2').addEventListener('click', function() {
-      slideshow2.goToPrev();
-    });
+    if(window.addEventListener) {
+      document.querySelector('#next2').addEventListener('click', function() {
+        slideshow2.goToNext();
+      });
+      document.querySelector('#prev2').addEventListener('click', function() {
+        slideshow2.goToPrev();
+      });
+    } else {
+      document.querySelector('#next2').attachEvent('onclick', function() {
+        slideshow2.goToNext();
+      });
+      document.querySelector('#prev2').attachEvent('onclick', function() {
+        slideshow2.goToPrev();
+      });
+    }
   </script>
 </body>
 </html>
