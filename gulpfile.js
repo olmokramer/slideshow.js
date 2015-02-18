@@ -11,3 +11,5 @@ gulp.task('compile', function() {
     .pipe(rename('slideshow.min.js'))
     .pipe(gulp.dest('.'));
 });
+
+gulp.task('default', ['compile']);
