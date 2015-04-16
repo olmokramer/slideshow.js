@@ -1,4 +1,17 @@
 {
+  "name": "slideshow.js",
+  "description": "Native JS slideshow plugin with support for custom effects",
+  "version": "1.5.2",
+  "keywords": ["slides", "slideshow", "touch", "swipe"],
+  "homepage": "https://olmokramer.github.io/slideshow.js/",
+  "repository": "https://github.com/olmokramer/slideshow.js",
+  "bugs": "https://github.com/olmokramer/slideshow.js/issues/",
+  "author": {
+    "name": "Olmo Kramer",
+    "email": "olmo.kramer@gmail.com",
+    "url": "https://github.com/olmokramer"
+  },
+  "main": "slideshow.js",
   "devDependencies": {
     "gulp": "^3.8.10",
     "gulp-coffee": "^2.3.1",
