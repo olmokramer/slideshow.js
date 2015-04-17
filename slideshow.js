@@ -259,6 +259,7 @@
           this.el.addEventListener('mousedown', bind(eventStart, this));
           this.el.addEventListener('mousemove', bind(eventProgress, this));
           this.el.addEventListener('mouseup', bind(eventEnd, this));
+          this.el.addEventListener('mouseleave', bind(evendEnd, this));
           _ref = this.slides;
           _results = [];
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
