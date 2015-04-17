@@ -94,10 +94,11 @@ factory = (document) ->
       # and go!
       init.call @
 
-    # private methods and variables
+    # private API
 
     defaults =
-      touchEnabled: true # enable touch events
+      touchEventsEnabled: true
+      mouseEventsEnabled: true
       preventScroll: true # call event.preventDefault in the touch events
       animationDuration: 400 # duration of the animation
       onDidChange: ->
@@ -121,12 +122,13 @@ factory = (document) ->
           if slideState === -1 then this is the previous slide (to the left) so translateX(-100%)
           if slideState === 1 then this is the next slide (to the right) so translateX(100%)
           ###
-          transform = prefix 'transform'
+          # transform = prefix 'transform'
           X = -slideState * 100
-          if transform
-            slideElement.style[transform] = "translateX(#{X}%)"
-          else
-            slideElement.style.left = "#{X}%"
+          slideElement.style.transform = "translateX(#{X}%)"
+          # if transform
+          #   slideElement.style[transform] = "translateX(#{X}%)"
+          # else
+          #   slideElement.style.left = "#{X}%"
         progress: (slideState, progress, slideElement) ->
           ###
           slideState = either 0 or 1
@@ -149,12 +151,8 @@ factory = (document) ->
           X = 100 * p * ( 1 - S + S - (S / |p|) )
           X = 100 * p * ( 1 - (S / |p|) )
           ###
-          transform = prefix 'transform'
           X = 100 * progress * (1 - slideState / Math.abs progress)
-          if transform
-            slideElement.style[transform] = "translateX(#{X}%)"
-          else
-            slideElement.style.left = "#{X}%"
+          slideElement.style.transform = "translateX(#{X}%)"
         after: (slideState, slideElement) ->
           ###
           slideState is either 0 or 1
@@ -165,13 +163,14 @@ factory = (document) ->
 
     init = ->
       initSlides.call @
-      initTouchEvents.call @
+      initEvents.call @
 
     initSlides = ->
       # we don't want the slides to be visible outside their container
+      @el.style.position = 'relative'
       @el.style.overflow = 'hidden'
-      beforeFn = @opts.effect.before
-      afterFn = @opts.effect.after
+      beforeAnimate = @opts.effect.before
+      afterAnimate = @opts.effect.after
       # el.children may behave weird in IE8
       @slides = @el.children ? @el.childNodes
       @current = 0
@@ -180,18 +179,27 @@ factory = (document) ->
         # are positioned properly
         slide.style.position = 'absolute'
         if i is @current
-          beforeFn?.call @, 0, @slides[@current]
-          afterFn?.call @, 1, @slides[@current]
+          beforeAnimate?.call @, 0, @slides[@current]
+          afterAnimate?.call @, 1, @slides[@current]
         else
-          beforeFn?.call @, 1, slide
-          afterFn?.call @, 0, slide
+          beforeAnimate?.call @, 1, slide
+          afterAnimate?.call @, 0, slide
 
-    initTouchEvents = ->
-      # return unless TouchEvent is supported and it is not explicitly disabled
-      return unless @touchEnabled = @opts.touchEnabled and TouchEvent?
-      @el.addEventListener 'touchstart', (e) => touchstart.call @, e
-      @el.addEventListener 'touchmove', (e) => touchmove.call @, e
-      @el.addEventListener 'touchend', (e) => touchend.call @, e
+    initEvents = ->
+      # check for TouchEvent support and if enabled in opts
+      if TouchEvent? and @opts.touchEventsEnabled
+        @el.addEventListener 'touchstart', bind touchstart, @
+        @el.addEventListener 'touchmove', bind touchmove, @
+        @el.addEventListener 'touchend', bind touchend, @
+      # check for MouseEvent support and if enabled in opts
+      if MouseEvent? and @opts.mouseEventsEnabled
+        @el.addEventListener 'mousedown', bind mousedown, @
+        @el.addEventListener 'mousemove', bind mousemove, @
+        @el.addEventListener 'mouseup', bind mouseup, @
+        for slide in @slides
+          slide.addEventListener 'mousedown', (event) -> event.preventDefault()
+          slide.addEventListener 'mousemove', (event) -> event.preventDefault()
+          slide.addEventListener 'mouseup', (event) -> event.preventDefault()
 
     setCurrentSlide = (slide) ->
       # set @current to slide's index in @slides
@@ -210,9 +218,9 @@ factory = (document) ->
       # slides shouldn't be prepared if this is called from a touch event
       # because this has already happened in touchStart
       unless @currentTouchEvent?
-        beforeFn = @opts.effect.before
-        beforeFn?.call @, 0, currentSlide
-        beforeFn?.call @, (if direction < 0 then 1 else -1), targetSlide
+        beforeAnimate = @opts.effect.before
+        beforeAnimate?.call @, 0, currentSlide
+        beforeAnimate?.call @, (if direction < 0 then 1 else -1), targetSlide
       # cache the animation state
       @currentAnimation = {start: new Date().getTime(), currentSlide, targetSlide, direction, duration, progress, callback}
       # and finally start animating
@@ -233,62 +241,82 @@ factory = (document) ->
         @currentAnimation = null
         cancelAnimationFrame id
         # call the after and callback functions
-        afterFn = @opts.effect.after
-        afterFn?.call @, 0, anim.currentSlide
-        afterFn?.call @, 1, anim.targetSlide
+        afterAnimate = @opts.effect.after
+        afterAnimate?.call @, 0, anim.currentSlide
+        afterAnimate?.call @, 1, anim.targetSlide
         anim.callback?()
         @opts.onDidChange.call @
         # set the new currentSlide
         setCurrentSlide.call @, anim.targetSlide
 
     touchstart = (event) ->
+      event.pageX = event.touches[0].pageX
+      event.pageY = event.touches[0].pageY
+      eventStart.call @, event
+
+    mousedown = (event) ->
+      eventStart.call @, event
+
+    eventStart = (event) ->
+      if @opts.preventDefaultEvents
+        event.preventDefault()
       # do nothing if an animation or touch event is currently in progress
-      return if @currentAnimation? or @currentTouchEvent?
+      return if @currentAnimation? or @currentEvent?
       # get the relevant slides
       currentSlide = @getCurrentSlide()
       prevSlide = @getPrevSlide()
       nextSlide = @getNextSlide()
       # prepare the slides to be animated
-      beforeFn = @opts.effect.before
-      beforeFn?.call @, 0, currentSlide
-      beforeFn?.call @, -1, prevSlide
-      beforeFn?.call @, 1, nextSlide
+      beforeAnimate = @opts.effect.before
+      beforeAnimate?.call @, 0, currentSlide
+      beforeAnimate?.call @, -1, prevSlide
+      beforeAnimate?.call @, 1, nextSlide
       # cache the touch event state
-      @currentTouchEvent = {
-        currentSlide
-        prevSlide
-        nextSlide
-        touchStart: event.timeStamp
-        touchX: event.touches[0].pageX
-        touchY: event.touches[0].pageY
-      }
-      # prevent default behavior if it's set in options
-      event.preventDefault() if @opts.preventDefaultEvents
+      {timeStamp, pageX, pageY} = event
+      @currentEvent = {currentSlide, prevSlide, nextSlide, timeStamp, pageX, pageY}
 
     touchmove = (event) ->
+      event.pageX = event.touches[0].pageX
+      event.pageY = event.touches[0].pageY
+      eventProgress.call @, event
+
+    mousemove = (event) ->
+      eventProgress.call @, event
+
+    eventProgress = (event) ->
+      if @opts.preventDefaultEvents
+        event.preventDefault()
       # do nothing if an animation is in progress, or there's no touch event in progress yet (which souldn't happen)
-      return if @currentAnimation or not @currentTouchEvent?
-      touch = @currentTouchEvent
+      return if @currentAnimation or not @currentEvent?
       # calculate the progress based on the distance touched
-      progress =
-        x: (event.touches[0].pageX - touch.touchX) / @el.clientWidth
-        y: (event.touches[0].pageY - touch.touchY) / @el.clientHeight
+      {pageX, pageY} = event
+      progress = (pageX - @currentEvent.pageX) / @el.clientWidth
+        # x: (pageX - @currentEvent.pageX) / @el.clientWidth
+        # y: (pageY - @currentEvent.pageY) / @el.clientHeight
       # animate the slide
       requestAnimationFrame =>
         progressFn = @opts.effect.progress
-        progressFn.call @, 0, progress, touch.currentSlide
-        progressFn.call @, 1, progress, if progress < 0 then touch.nextSlide else touch.prevSlide
-      # prevent default behavior if it's set in options
-      event.preventDefault() if @opts.preventDefaultEvents
+        progressFn.call @, 0, progress, @currentEvent.currentSlide
+        progressFn.call @, 1, progress, if progress < 0 then @currentEvent.nextSlide else @currentEvent.prevSlide
 
     touchend = (event) ->
+      event.pageX = event.changedTouches[0].pageX
+      event.pageY = event.changedTouches[0].pageY
+      eventEnd.call @, event
+
+    mouseup = (event) ->
+      eventEnd.call @, event
+
+    eventEnd = (event) ->
+      if @opts.preventDefaultEvents
+        event.preventDefault()
       # do nothing if an animation is in progress, or there's no touch event in progress yet (which souldn't happen)
-      return if @currentAnimation or not @currentTouchEvent?
-      touch = @currentTouchEvent
+      return if @currentAnimation or not @currentEvent?
+      {pageX, pageY, timeStamp} = event
       # calculate the final progress that has been made
-      progress = (event.changedTouches[0].pageX - touch.touchX) / @el.clientWidth
+      progress = (pageX - @currentEvent.pageX) / @el.clientWidth
       # calculate the time passed
-      timePassed = event.timeStamp - touch.touchStart
+      timePassed = timeStamp - @currentEvent.timeStamp
       progressAbs = Math.abs progress
       # check progress and timePassed against the conditions
       for cond in @opts.conditions
@@ -302,34 +330,33 @@ factory = (document) ->
         # we matched a condition, so slide away the currentSlide and slide in
         # the targetSlide. if we slided to the left, the nextSlide will be the
         # targetSlide, else the prevSlide will be.
-        currentSlide = touch.currentSlide
+        currentSlide = @currentEvent.currentSlide
         if progress < 0
           direction = -1
-          targetSlide = touch.nextSlide
+          targetSlide = @currentEvent.nextSlide
         else
           direction = 1
-          targetSlide = touch.prevSlide
+          targetSlide = @currentEvent.prevSlide
         progress = progressAbs
       else
         # we didn't match a condition, so slide the currentSlide back into
         # position and slide targetSlide (nextSlide or prevSlide, depending on
         # slide direction) away
-        targetSlide = touch.currentSlide
+        targetSlide = @currentEvent.currentSlide
         if progress < 0
           direction = 1
-          currentSlide = touch.nextSlide
+          currentSlide = @currentEvent.nextSlide
         else
           direction = -1
-          currentSlide = touch.prevSlide
+          currentSlide = @currentEvent.prevSlide
         progress = 1 - progressAbs
       # call the animateSlides function with the parameters
-      animateSlides.call @, currentSlide, targetSlide, {direction, progress, durationMod}, => @currentTouchEvent = null
-      # prevent default behavior if set in options
-      event.preventDefault() if @opts.preventDefaultEvents
+      animateSlides.call @, currentSlide, targetSlide, {direction, progress, durationMod}, =>
+        @currentEvent = null
 
-    # end private methods
+    # end private API
 
-    # public methods
+    # public API
 
     # get*Slide all return an HTMLElement
 

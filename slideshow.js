@@ -110,7 +110,7 @@
   factory = function(document) {
     var Slideshow;
     return Slideshow = (function() {
-      var animateSlides, defaults, init, initSlides, initTouchEvents, nextFrame, setCurrentSlide, touchend, touchmove, touchstart;
+      var animateSlides, defaults, eventEnd, eventProgress, eventStart, init, initEvents, initSlides, mousedown, mousemove, mouseup, nextFrame, setCurrentSlide, touchend, touchmove, touchstart;
 
       function Slideshow(element, opts) {
         if (element.nodeType !== 1) {
@@ -130,7 +130,8 @@
       }
 
       defaults = {
-        touchEnabled: true,
+        touchEventsEnabled: true,
+        mouseEventsEnabled: true,
         preventScroll: true,
         animationDuration: 400,
         onDidChange: function() {},
@@ -149,7 +150,7 @@
         ],
         effect: {
           before: function(slideState, slideElement) {
-            var X, transform;
+            var X;
             slideElement.style.display = 'block';
 
             /*
@@ -158,13 +159,8 @@
             if slideState === -1 then this is the previous slide (to the left) so translateX(-100%)
             if slideState === 1 then this is the next slide (to the right) so translateX(100%)
              */
-            transform = prefix('transform');
             X = -slideState * 100;
-            if (transform) {
-              return slideElement.style[transform] = "translateX(" + X + "%)";
-            } else {
-              return slideElement.style.left = X + "%";
-            }
+            return slideElement.style.transform = "translateX(" + X + "%)";
           },
           progress: function(slideState, progress, slideElement) {
 
@@ -189,14 +185,9 @@
             X = 100 * p * ( 1 - S + S - (S / |p|) )
             X = 100 * p * ( 1 - (S / |p|) )
              */
-            var X, transform;
-            transform = prefix('transform');
+            var X;
             X = 100 * progress * (1 - slideState / Math.abs(progress));
-            if (transform) {
-              return slideElement.style[transform] = "translateX(" + X + "%)";
-            } else {
-              return slideElement.style.left = X + "%";
-            }
+            return slideElement.style.transform = "translateX(" + X + "%)";
           },
           after: function(slideState, slideElement) {
 
@@ -212,14 +203,15 @@
 
       init = function() {
         initSlides.call(this);
-        return initTouchEvents.call(this);
+        return initEvents.call(this);
       };
 
       initSlides = function() {
-        var afterFn, beforeFn, i, slide, _i, _len, _ref, _ref1, _results;
+        var afterAnimate, beforeAnimate, i, slide, _i, _len, _ref, _ref1, _results;
+        this.el.style.position = 'relative';
         this.el.style.overflow = 'hidden';
-        beforeFn = this.opts.effect.before;
-        afterFn = this.opts.effect.after;
+        beforeAnimate = this.opts.effect.before;
+        afterAnimate = this.opts.effect.after;
         this.slides = (_ref = this.el.children) != null ? _ref : this.el.childNodes;
         this.current = 0;
         _ref1 = this.slides;
@@ -231,39 +223,47 @@
           }
           slide.style.position = 'absolute';
           if (i === this.current) {
-            if (beforeFn != null) {
-              beforeFn.call(this, 0, this.slides[this.current]);
+            if (beforeAnimate != null) {
+              beforeAnimate.call(this, 0, this.slides[this.current]);
             }
-            _results.push(afterFn != null ? afterFn.call(this, 1, this.slides[this.current]) : void 0);
+            _results.push(afterAnimate != null ? afterAnimate.call(this, 1, this.slides[this.current]) : void 0);
           } else {
-            if (beforeFn != null) {
-              beforeFn.call(this, 1, slide);
+            if (beforeAnimate != null) {
+              beforeAnimate.call(this, 1, slide);
             }
-            _results.push(afterFn != null ? afterFn.call(this, 0, slide) : void 0);
+            _results.push(afterAnimate != null ? afterAnimate.call(this, 0, slide) : void 0);
           }
         }
         return _results;
       };
 
-      initTouchEvents = function() {
-        if (!(this.touchEnabled = this.opts.touchEnabled && (typeof TouchEvent !== "undefined" && TouchEvent !== null))) {
-          return;
+      initEvents = function() {
+        var slide, _i, _len, _ref, _results;
+        if ((typeof TouchEvent !== "undefined" && TouchEvent !== null) && this.opts.touchEventsEnabled) {
+          this.el.addEventListener('touchstart', bind(touchstart, this));
+          this.el.addEventListener('touchmove', bind(touchmove, this));
+          this.el.addEventListener('touchend', bind(touchend, this));
         }
-        this.el.addEventListener('touchstart', (function(_this) {
-          return function(e) {
-            return touchstart.call(_this, e);
-          };
-        })(this));
-        this.el.addEventListener('touchmove', (function(_this) {
-          return function(e) {
-            return touchmove.call(_this, e);
-          };
-        })(this));
-        return this.el.addEventListener('touchend', (function(_this) {
-          return function(e) {
-            return touchend.call(_this, e);
-          };
-        })(this));
+        if ((typeof MouseEvent !== "undefined" && MouseEvent !== null) && this.opts.mouseEventsEnabled) {
+          this.el.addEventListener('mousedown', bind(mousedown, this));
+          this.el.addEventListener('mousemove', bind(mousemove, this));
+          this.el.addEventListener('mouseup', bind(mouseup, this));
+          _ref = this.slides;
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            slide = _ref[_i];
+            slide.addEventListener('mousedown', function(event) {
+              return event.preventDefault();
+            });
+            slide.addEventListener('mousemove', function(event) {
+              return event.preventDefault();
+            });
+            _results.push(slide.addEventListener('mouseup', function(event) {
+              return event.preventDefault();
+            }));
+          }
+          return _results;
+        }
       };
 
       setCurrentSlide = function(slide) {
@@ -271,7 +271,7 @@
       };
 
       animateSlides = function(currentSlide, targetSlide, _arg, callback) {
-        var beforeFn, direction, duration, durationMod, progress;
+        var beforeAnimate, direction, duration, durationMod, progress;
         direction = _arg.direction, progress = _arg.progress, durationMod = _arg.durationMod;
         if (this.currentAnimation != null) {
           return;
@@ -285,12 +285,12 @@
         }
         duration = Math.max(1, this.opts.animationDuration * (1 - progress) * durationMod);
         if (this.currentTouchEvent == null) {
-          beforeFn = this.opts.effect.before;
-          if (beforeFn != null) {
-            beforeFn.call(this, 0, currentSlide);
+          beforeAnimate = this.opts.effect.before;
+          if (beforeAnimate != null) {
+            beforeAnimate.call(this, 0, currentSlide);
           }
-          if (beforeFn != null) {
-            beforeFn.call(this, (direction < 0 ? 1 : -1), targetSlide);
+          if (beforeAnimate != null) {
+            beforeAnimate.call(this, (direction < 0 ? 1 : -1), targetSlide);
           }
         }
         this.currentAnimation = {
@@ -306,7 +306,7 @@
       };
 
       nextFrame = function(timestamp) {
-        var afterFn, anim, id, progress, progressFn;
+        var afterAnimate, anim, id, progress, progressFn;
         id = requestAnimationFrame(bind(nextFrame, this));
         anim = this.currentAnimation;
         progress = Math.min(1, anim.progress + (new Date().getTime() - anim.start) / anim.duration * (1 - anim.progress));
@@ -320,12 +320,12 @@
         if (progress >= 1) {
           this.currentAnimation = null;
           cancelAnimationFrame(id);
-          afterFn = this.opts.effect.after;
-          if (afterFn != null) {
-            afterFn.call(this, 0, anim.currentSlide);
+          afterAnimate = this.opts.effect.after;
+          if (afterAnimate != null) {
+            afterAnimate.call(this, 0, anim.currentSlide);
           }
-          if (afterFn != null) {
-            afterFn.call(this, 1, anim.targetSlide);
+          if (afterAnimate != null) {
+            afterAnimate.call(this, 1, anim.targetSlide);
           }
           if (typeof anim.callback === "function") {
             anim.callback();
@@ -336,67 +336,98 @@
       };
 
       touchstart = function(event) {
-        var beforeFn, currentSlide, nextSlide, prevSlide;
-        if ((this.currentAnimation != null) || (this.currentTouchEvent != null)) {
+        event.pageX = event.touches[0].pageX;
+        event.pageY = event.touches[0].pageY;
+        return eventStart.call(this, event);
+      };
+
+      mousedown = function(event) {
+        return eventStart.call(this, event);
+      };
+
+      eventStart = function(event) {
+        var beforeAnimate, currentSlide, nextSlide, pageX, pageY, prevSlide, timeStamp;
+        if (this.opts.preventDefaultEvents) {
+          event.preventDefault();
+        }
+        if ((this.currentAnimation != null) || (this.currentEvent != null)) {
           return;
         }
         currentSlide = this.getCurrentSlide();
         prevSlide = this.getPrevSlide();
         nextSlide = this.getNextSlide();
-        beforeFn = this.opts.effect.before;
-        if (beforeFn != null) {
-          beforeFn.call(this, 0, currentSlide);
+        beforeAnimate = this.opts.effect.before;
+        if (beforeAnimate != null) {
+          beforeAnimate.call(this, 0, currentSlide);
         }
-        if (beforeFn != null) {
-          beforeFn.call(this, -1, prevSlide);
+        if (beforeAnimate != null) {
+          beforeAnimate.call(this, -1, prevSlide);
         }
-        if (beforeFn != null) {
-          beforeFn.call(this, 1, nextSlide);
+        if (beforeAnimate != null) {
+          beforeAnimate.call(this, 1, nextSlide);
         }
-        this.currentTouchEvent = {
+        timeStamp = event.timeStamp, pageX = event.pageX, pageY = event.pageY;
+        return this.currentEvent = {
           currentSlide: currentSlide,
           prevSlide: prevSlide,
           nextSlide: nextSlide,
-          touchStart: event.timeStamp,
-          touchX: event.touches[0].pageX,
-          touchY: event.touches[0].pageY
+          timeStamp: timeStamp,
+          pageX: pageX,
+          pageY: pageY
         };
-        if (this.opts.preventDefaultEvents) {
-          return event.preventDefault();
-        }
       };
 
       touchmove = function(event) {
-        var progress, touch;
-        if (this.currentAnimation || (this.currentTouchEvent == null)) {
+        event.pageX = event.touches[0].pageX;
+        event.pageY = event.touches[0].pageY;
+        return eventProgress.call(this, event);
+      };
+
+      mousemove = function(event) {
+        return eventProgress.call(this, event);
+      };
+
+      eventProgress = function(event) {
+        var pageX, pageY, progress;
+        if (this.opts.preventDefaultEvents) {
+          event.preventDefault();
+        }
+        if (this.currentAnimation || (this.currentEvent == null)) {
           return;
         }
-        touch = this.currentTouchEvent;
-        progress = {
-          x: (event.touches[0].pageX - touch.touchX) / this.el.clientWidth,
-          y: (event.touches[0].pageY - touch.touchY) / this.el.clientHeight
-        };
-        requestAnimationFrame((function(_this) {
+        pageX = event.pageX, pageY = event.pageY;
+        progress = (pageX - this.currentEvent.pageX) / this.el.clientWidth;
+        return requestAnimationFrame((function(_this) {
           return function() {
             var progressFn;
             progressFn = _this.opts.effect.progress;
-            progressFn.call(_this, 0, progress, touch.currentSlide);
-            return progressFn.call(_this, 1, progress, progress < 0 ? touch.nextSlide : touch.prevSlide);
+            progressFn.call(_this, 0, progress, _this.currentEvent.currentSlide);
+            return progressFn.call(_this, 1, progress, progress < 0 ? _this.currentEvent.nextSlide : _this.currentEvent.prevSlide);
           };
         })(this));
-        if (this.opts.preventDefaultEvents) {
-          return event.preventDefault();
-        }
       };
 
       touchend = function(event) {
-        var cond, currentSlide, direction, durationMod, progress, progressAbs, targetSlide, timePassed, touch, _i, _len, _ref, _ref1, _ref2;
-        if (this.currentAnimation || (this.currentTouchEvent == null)) {
+        event.pageX = event.changedTouches[0].pageX;
+        event.pageY = event.changedTouches[0].pageY;
+        return eventEnd.call(this, event);
+      };
+
+      mouseup = function(event) {
+        return eventEnd.call(this, event);
+      };
+
+      eventEnd = function(event) {
+        var cond, currentSlide, direction, durationMod, pageX, pageY, progress, progressAbs, targetSlide, timePassed, timeStamp, _i, _len, _ref, _ref1, _ref2;
+        if (this.opts.preventDefaultEvents) {
+          event.preventDefault();
+        }
+        if (this.currentAnimation || (this.currentEvent == null)) {
           return;
         }
-        touch = this.currentTouchEvent;
-        progress = (event.changedTouches[0].pageX - touch.touchX) / this.el.clientWidth;
-        timePassed = event.timeStamp - touch.touchStart;
+        pageX = event.pageX, pageY = event.pageY, timeStamp = event.timeStamp;
+        progress = (pageX - this.currentEvent.pageX) / this.el.clientWidth;
+        timePassed = timeStamp - this.currentEvent.timeStamp;
         progressAbs = Math.abs(progress);
         _ref = this.opts.conditions;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -407,38 +438,35 @@
           }
         }
         if (durationMod != null) {
-          currentSlide = touch.currentSlide;
+          currentSlide = this.currentEvent.currentSlide;
           if (progress < 0) {
             direction = -1;
-            targetSlide = touch.nextSlide;
+            targetSlide = this.currentEvent.nextSlide;
           } else {
             direction = 1;
-            targetSlide = touch.prevSlide;
+            targetSlide = this.currentEvent.prevSlide;
           }
           progress = progressAbs;
         } else {
-          targetSlide = touch.currentSlide;
+          targetSlide = this.currentEvent.currentSlide;
           if (progress < 0) {
             direction = 1;
-            currentSlide = touch.nextSlide;
+            currentSlide = this.currentEvent.nextSlide;
           } else {
             direction = -1;
-            currentSlide = touch.prevSlide;
+            currentSlide = this.currentEvent.prevSlide;
           }
           progress = 1 - progressAbs;
         }
-        animateSlides.call(this, currentSlide, targetSlide, {
+        return animateSlides.call(this, currentSlide, targetSlide, {
           direction: direction,
           progress: progress,
           durationMod: durationMod
         }, (function(_this) {
           return function() {
-            return _this.currentTouchEvent = null;
+            return _this.currentEvent = null;
           };
         })(this));
-        if (this.opts.preventDefaultEvents) {
-          return event.preventDefault();
-        }
       };
 
       Slideshow.prototype.getSlide = function(i) {
