@@ -201,7 +201,7 @@ factory = (document) ->
         @el.addEventListener 'mousedown', bind eventStart, @
         @el.addEventListener 'mousemove', bind eventProgress, @
         @el.addEventListener 'mouseup', bind eventEnd, @
-        @el.addEventListener 'mouseleave', bind evendEnd, @
+        @el.addEventListener 'mouseleave', bind eventEnd, @
         for slide in @slides
           slide.addEventListener 'mousedown', (event) -> event.preventDefault()
           slide.addEventListener 'mousemove', (event) -> event.preventDefault()
