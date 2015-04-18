@@ -424,6 +424,10 @@
               return (pageY - this.currentEvent.pageY) / this.el.clientHeight;
           }
         }).call(this);
+        if (progress === 0) {
+          this.currentEvent = null;
+          return;
+        }
         timePassed = timeStamp - this.currentEvent.timeStamp;
         progressAbs = Math.abs(progress);
         _ref3 = this.opts.conditions;

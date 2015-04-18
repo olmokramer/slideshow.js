@@ -300,6 +300,9 @@ factory = (document) ->
       progress = switch @opts.animationDirection
         when 'x' then (pageX - @currentEvent.pageX) / @el.clientWidth
         when 'y' then (pageY - @currentEvent.pageY) / @el.clientHeight
+      if progress is 0
+        @currentEvent = null
+        return
       # calculate the time passed
       timePassed = timeStamp - @currentEvent.timeStamp
       progressAbs = Math.abs progress

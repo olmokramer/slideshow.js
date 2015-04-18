@@ -1,7 +1,7 @@
 {
   "name": "slideshow.js",
   "description": "Native JS slideshow plugin with support for custom effects",
-  "version": "1.6.3",
+  "version": "1.6.4",
   "keywords": ["slides", "slideshow", "touch", "swipe"],
   "homepage": "https://olmokramer.github.io/slideshow.js/",
   "repository": "https://github.com/olmokramer/slideshow.js",
