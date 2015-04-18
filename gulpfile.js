@@ -3,6 +3,10 @@ coffee = require('gulp-coffee');
 uglify = require('gulp-uglify');
 rename = require('gulp-rename');
 
+gulp.task('watch', function() {
+  gulp.watch('slideshow.coffee', ['compile']);
+});
+
 gulp.task('compile', function() {
   gulp.src('slideshow.coffee')
     .pipe(coffee())
