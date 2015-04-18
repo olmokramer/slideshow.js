@@ -339,11 +339,11 @@
           if (afterAnimate != null) {
             afterAnimate.call(this, 1, anim.targetSlide);
           }
+          setCurrentSlide.call(this, anim.targetSlide);
           if (typeof anim.callback === "function") {
             anim.callback();
           }
-          this.opts.onDidChange.call(this);
-          return setCurrentSlide.call(this, anim.targetSlide);
+          return this.opts.onDidChange.call(this);
         }
       };
 

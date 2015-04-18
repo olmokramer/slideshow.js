@@ -250,10 +250,10 @@ factory = (document) ->
         afterAnimate = @opts.effect.after
         afterAnimate?.call @, 0, anim.currentSlide
         afterAnimate?.call @, 1, anim.targetSlide
-        anim.callback?()
-        @opts.onDidChange.call @
         # set the new currentSlide
         setCurrentSlide.call @, anim.targetSlide
+        anim.callback?()
+        @opts.onDidChange.call @
 
     eventStart = (event) ->
       if @opts.preventDefaultEvents
