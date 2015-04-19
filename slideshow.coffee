@@ -163,8 +163,6 @@ class Slideshow
 
   initSlides = ->
     # we don't want the slides to be visible outside their container
-    @el.style.position = 'relative'
-    @el.style.overflow = 'hidden'
     effectBefore = @options.effect.before
     effectAfter = @options.effect.after
     # el.children may behave weird in IE8
@@ -173,7 +171,6 @@ class Slideshow
     for slide, i in @slides when i isnt @current
       # call the before and after functions once on all slides, so all slides
       # are positioned properly
-      slide.style.position = 'absolute'
       if i is @current
         effectBefore?.call @, 0, @slides[@current]
         effectAfter?.call @, 1, @slides[@current]

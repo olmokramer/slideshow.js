@@ -217,7 +217,6 @@
 
     initSlides = function() {
       var effectAfter, effectBefore, i, slide, _i, _len, _ref, _ref1, _results;
-      this.el.style.position = 'relative';
       this.el.style.overflow = 'hidden';
       effectBefore = this.options.effect.before;
       effectAfter = this.options.effect.after;
@@ -227,20 +226,18 @@
       _results = [];
       for (i = _i = 0, _len = _ref1.length; _i < _len; i = ++_i) {
         slide = _ref1[i];
-        if (!(i !== this.current)) {
-          continue;
-        }
-        slide.style.position = 'absolute';
-        if (i === this.current) {
-          if (effectBefore != null) {
-            effectBefore.call(this, 0, this.slides[this.current]);
+        if (i !== this.current) {
+          if (i === this.current) {
+            if (effectBefore != null) {
+              effectBefore.call(this, 0, this.slides[this.current]);
+            }
+            _results.push(effectAfter != null ? effectAfter.call(this, 1, this.slides[this.current]) : void 0);
+          } else {
+            if (effectBefore != null) {
+              effectBefore.call(this, 1, slide);
+            }
+            _results.push(effectAfter != null ? effectAfter.call(this, 0, slide) : void 0);
           }
-          _results.push(effectAfter != null ? effectAfter.call(this, 1, this.slides[this.current]) : void 0);
-        } else {
-          if (effectBefore != null) {
-            effectBefore.call(this, 1, slide);
-          }
-          _results.push(effectAfter != null ? effectAfter.call(this, 0, slide) : void 0);
         }
       }
       return _results;
