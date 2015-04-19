@@ -179,21 +179,24 @@ class Slideshow
         effectAfter?.call @, 0, slide
 
   initEvents = ->
+    @eventStart = bind eventStart, @
+    @eventProgress = bind eventProgress, @
+    @eventEnd = bind eventEnd, @
     # check for TouchEvent support and if enabled in options
     if TouchEvent? and @options.touchEventsEnabled
-      @el.addEventListener 'touchstart', bind eventStart, @
-      @el.addEventListener 'touchmove', bind eventProgress, @
-      @el.addEventListener 'touchend', bind eventEnd, @
+      @el.addEventListener 'touchstart', @eventStart
+      @el.addEventListener 'touchmove', @eventProgress
+      @el.addEventListener 'touchend', @eventEnd
     # check for MouseEvent support and if enabled in options
     if MouseEvent? and @options.mouseEventsEnabled
-      @el.addEventListener 'mousedown', bind eventStart, @
-      @el.addEventListener 'mousemove', bind eventProgress, @
-      @el.addEventListener 'mouseup', bind eventEnd, @
-      @el.addEventListener 'mouseleave', bind eventEnd, @
+      @el.addEventListener 'mousedown', @eventStart
+      @el.addEventListener 'mousemove', @eventProgress
+      @el.addEventListener 'mouseup', @eventEnd
+      @el.addEventListener 'mouseleave', @eventEnd
       for slide in @slides
-        slide.addEventListener 'mousedown', (event) -> event.preventDefault()
-        slide.addEventListener 'mousemove', (event) -> event.preventDefault()
-        slide.addEventListener 'mouseup', (event) -> event.preventDefault()
+        slide.addEventListener 'mousedown', preventDefault
+        slide.addEventListener 'mousemove', preventDefault
+        slide.addEventListener 'mouseup', preventDefault
 
   setCurrentSlide = (slide) ->
     # set @current to slide's index in @slides
@@ -332,6 +335,9 @@ class Slideshow
     animateSlides.call @, currentSlide, targetSlide, {direction, initialProgress, durationMod}, =>
       @currentEvent = null
 
+  preventDefault = (event) ->
+    event.preventDefault()
+
   # end private API
 
   # public API
@@ -385,6 +391,21 @@ class Slideshow
 
   # go to last slide
   goToLast: (cb) -> @goTo @slides.length - 1, cb
+
+  # destroy this instance
+  destroy: ->
+    @el.removeEventListener 'touchstart', @eventStart
+    @el.removeEventListener 'touchmove', @eventProgress
+    @el.removeEventListener 'touchend', @eventEnd
+    @el.removeEventListener 'mousedown', @eventStart
+    @el.removeEventListener 'mousemove', @eventProgress
+    @el.removeEventListener 'mouseup', @eventEnd
+    @el.removeEventListener 'mouseleave', @eventEnd
+    for slide in @slides
+      slide.removeEventListener 'mousedown', preventDefault
+      slide.removeEventListener 'mousemove', preventDefault
+      slide.removeEventListener 'mouseup', preventDefault
+    {@el, @slides, @eventStart, @eventProgress, @eventEnd} = {}
 
   # class methods
 

@@ -77,7 +77,7 @@
   };
 
   Slideshow = (function() {
-    var animateSlides, defaults, effects, eventEnd, eventProgress, eventStart, init, initEvents, initSlides, nextFrame, setCurrentSlide;
+    var animateSlides, defaults, effects, eventEnd, eventProgress, eventStart, init, initEvents, initSlides, nextFrame, preventDefault, setCurrentSlide;
 
     function Slideshow(element, options) {
       if (options == null) {
@@ -244,29 +244,26 @@
 
     initEvents = function() {
       var slide, _i, _len, _ref, _results;
+      this.eventStart = bind(eventStart, this);
+      this.eventProgress = bind(eventProgress, this);
+      this.eventEnd = bind(eventEnd, this);
       if ((typeof TouchEvent !== "undefined" && TouchEvent !== null) && this.options.touchEventsEnabled) {
-        this.el.addEventListener('touchstart', bind(eventStart, this));
-        this.el.addEventListener('touchmove', bind(eventProgress, this));
-        this.el.addEventListener('touchend', bind(eventEnd, this));
+        this.el.addEventListener('touchstart', this.eventStart);
+        this.el.addEventListener('touchmove', this.eventProgress);
+        this.el.addEventListener('touchend', this.eventEnd);
       }
       if ((typeof MouseEvent !== "undefined" && MouseEvent !== null) && this.options.mouseEventsEnabled) {
-        this.el.addEventListener('mousedown', bind(eventStart, this));
-        this.el.addEventListener('mousemove', bind(eventProgress, this));
-        this.el.addEventListener('mouseup', bind(eventEnd, this));
-        this.el.addEventListener('mouseleave', bind(eventEnd, this));
+        this.el.addEventListener('mousedown', this.eventStart);
+        this.el.addEventListener('mousemove', this.eventProgress);
+        this.el.addEventListener('mouseup', this.eventEnd);
+        this.el.addEventListener('mouseleave', this.eventEnd);
         _ref = this.slides;
         _results = [];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           slide = _ref[_i];
-          slide.addEventListener('mousedown', function(event) {
-            return event.preventDefault();
-          });
-          slide.addEventListener('mousemove', function(event) {
-            return event.preventDefault();
-          });
-          _results.push(slide.addEventListener('mouseup', function(event) {
-            return event.preventDefault();
-          }));
+          slide.addEventListener('mousedown', preventDefault);
+          slide.addEventListener('mousemove', preventDefault);
+          _results.push(slide.addEventListener('mouseup', preventDefault));
         }
         return _results;
       }
@@ -466,6 +463,10 @@
       })(this));
     };
 
+    preventDefault = function(event) {
+      return event.preventDefault();
+    };
+
     Slideshow.prototype.getSlide = function(i) {
       i = i % this.slides.length;
       if (i < 0) {
@@ -525,6 +526,25 @@
 
     Slideshow.prototype.goToLast = function(cb) {
       return this.goTo(this.slides.length - 1, cb);
+    };
+
+    Slideshow.prototype.destroy = function() {
+      var slide, _i, _len, _ref, _ref1;
+      this.el.removeEventListener('touchstart', this.eventStart);
+      this.el.removeEventListener('touchmove', this.eventProgress);
+      this.el.removeEventListener('touchend', this.eventEnd);
+      this.el.removeEventListener('mousedown', this.eventStart);
+      this.el.removeEventListener('mousemove', this.eventProgress);
+      this.el.removeEventListener('mouseup', this.eventEnd);
+      this.el.removeEventListener('mouseleave', this.eventEnd);
+      _ref = this.slides;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        slide = _ref[_i];
+        slide.removeEventListener('mousedown', preventDefault);
+        slide.removeEventListener('mousemove', preventDefault);
+        slide.removeEventListener('mouseup', preventDefault);
+      }
+      return _ref1 = {}, this.el = _ref1.el, this.slides = _ref1.slides, this.eventStart = _ref1.eventStart, this.eventProgress = _ref1.eventProgress, this.eventEnd = _ref1.eventEnd, _ref1;
     };
 
     Slideshow.registerAsJQueryPlugin = function(jQuery, methodName) {

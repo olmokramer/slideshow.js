@@ -259,6 +259,12 @@ The callback function in the `goTo*` functions receives the following parameters
 | currentSlide      | The slide that is visible after the `goTo` function was called. |
 | currentSlideIndex | Index of the slide that is visible after the `goTo` function was called. |
 
+#### destroy()
+
+Cleans up the slideshow (i.e. removes event listeners)
+
+
+
 
 ## Class methods
 

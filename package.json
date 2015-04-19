@@ -1,7 +1,7 @@
 {
   "name": "slideshow.js",
   "description": "Native JS slideshow plugin with support for custom effects",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "keywords": [
     "slides",
     "slideshow",
