@@ -217,7 +217,6 @@
 
     initSlides = function() {
       var effectAfter, effectBefore, i, slide, _i, _len, _ref, _ref1, _results;
-      this.el.style.overflow = 'hidden';
       effectBefore = this.options.effect.before;
       effectAfter = this.options.effect.after;
       this.slides = (_ref = this.el.children) != null ? _ref : this.el.childNodes;
@@ -284,7 +283,7 @@
         return;
       }
       if ((_ref = this.options.onWillChange) != null) {
-        _ref.call(this, currentSlide, targetSlide, this.current + 1);
+        _ref.call(this, currentSlide, targetSlide, (this.current + 1) % this.children.length);
       }
       progress = initialProgress != null ? initialProgress : 0;
       if (durationMod == null) {
