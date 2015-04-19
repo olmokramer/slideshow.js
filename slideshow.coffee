@@ -405,7 +405,7 @@ class Slideshow
       slide.removeEventListener 'mousedown', preventDefault
       slide.removeEventListener 'mousemove', preventDefault
       slide.removeEventListener 'mouseup', preventDefault
-    {@el, @slides, @eventStart, @eventProgress, @eventEnd} = {}
+    {@el, @slides, @eventStart, @eventProgress, @eventEnd, @options} = {}
 
   # class methods
 

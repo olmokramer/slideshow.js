@@ -544,7 +544,7 @@
         slide.removeEventListener('mousemove', preventDefault);
         slide.removeEventListener('mouseup', preventDefault);
       }
-      return _ref1 = {}, this.el = _ref1.el, this.slides = _ref1.slides, this.eventStart = _ref1.eventStart, this.eventProgress = _ref1.eventProgress, this.eventEnd = _ref1.eventEnd, _ref1;
+      return _ref1 = {}, this.el = _ref1.el, this.slides = _ref1.slides, this.eventStart = _ref1.eventStart, this.eventProgress = _ref1.eventProgress, this.eventEnd = _ref1.eventEnd, this.options = _ref1.options, _ref1;
     };
 
     Slideshow.registerAsJQueryPlugin = function(jQuery, methodName) {
