@@ -17,6 +17,7 @@
       margin: 20px auto;
       position: relative;
       transform: translateZ(0);
+      overflow: hidden;
     }
 
     .slides:before {
@@ -119,45 +120,48 @@ document.querySelector('#prev').addEventListener('click', function() {
   </div>
   <div id="prev2" class="button">PREV</div>
   <div id="next2" class="button">NEXT</div>
-  <pre><code class="js">slidesContainer = document.querySelector('.slides');
-slideshow = new Slideshow(slidesContainer, {
-  animationDuration: 600,
-  effect: {
-    before: function(slideState, slideElement) {
-      if (slideState === 0) {
-        // this is the currently visible slide. we want it to
-        // be totally opaque before animating it to totally transparent.
-        slideElement.style.opacity = 1;
-      } else {
-        // this is the slide that will become opaque, but first
-        // it should be transparent.
-        slideElement.style.opacity = 0;
-      }
-    },
-    progress: function(slideState, progress, slideElement) {
-      // get the absolute value of the property, because we are
-      // not interested in left/right
-      progress = Math.abs(progress);
-      // the slide that was visible at first should become
-      // more and more transparent as we progress further.
-      // the other element should get more opaque.
-      if (slideState === 0) {
-        slideElement.style.opacity = 1 - progress;
-      } else {
-        slideElement.style.opacity = progress;
-      }
-    },
-    after: function(slideState, slideElement) {
-      // the new slide should be on top for save image (etc.) to work
-      if (slideState === 0) {
-        // this is the previous slide, so send down
-        slideElement.style.zIndex = 0
-      } else {
-        // this is the next slide so send to top
-        slideElement.style.zIndex = 1
-      }
+  <pre><code class="js">// custom effect
+Slideshow.registerEffect('awesome-fade', {
+  before: function(slideState, slideElement) {
+    if (slideState === 0) {
+      // this is the currently visible slide. we want it to
+      // be totally opaque before animating it to totally transparent.
+      slideElement.style.opacity = 1;
+    } else {
+      // this is the slide that will become opaque, but first
+      // it should be transparent.
+      slideElement.style.opacity = 0;
+    }
+  },
+  progress: function(slideState, progress, slideElement) {
+    // get the absolute value of the property, because we are
+    // not interested in left/right
+    progress = Math.abs(progress);
+    // the slide that was visible at first should become
+    // more and more transparent as we progress further.
+    // the other element should get more opaque.
+    if (slideState === 0) {
+      slideElement.style.opacity = 1 - progress;
+    } else {
+      slideElement.style.opacity = progress;
+    }
+  },
+  after: function(slideState, slideElement) {
+    // the new slide should be on top for save image (etc.) to work
+    if (slideState === 0) {
+      // this is the previous slide, so send down
+      slideElement.style.zIndex = 0
+    } else {
+      // this is the next slide so send to top
+      slideElement.style.zIndex = 1
     }
   }
+});
+
+slidesContainer = document.querySelector('.slides');
+slideshow = new Slideshow(slidesContainer, {
+  animationDuration: 600,
+  effect: 'awesome-fade'
 });
 document.querySelector('#next').addEventListener('click', function() {
   slideshow.goToNext();
@@ -166,67 +170,53 @@ document.querySelector('#prev').addEventListener('click', function() {
   slideshow.goToPrev();
 });</code></pre>
   <script>
+    // slideshow 1
     slidesContainer1 = document.querySelector('.slides1');
     slideshow1 = new Slideshow(slidesContainer1);
-    if(window.addEventListener) {
-      document.querySelector('#next1').addEventListener('click', function() {
-        slideshow1.goToNext();
-      });
-      document.querySelector('#prev1').addEventListener('click', function() {
-        slideshow1.goToPrev();
-      });
-    } else {
-      document.querySelector('#next1').attachEvent('onclick', function() {
-        slideshow1.goToNext();
-      });
-      document.querySelector('#prev1').attachEvent('onclick', function() {
-        slideshow1.goToPrev();
-      });
-    }
-    slidesContainer2 = document.querySelector('.slides2');
-    slideshow2 = new Slideshow(slidesContainer2, {
-      animationDuration: 600,
-      effect: {
-        // see README.md for comments
-        before: function(slideState, slideElement) {
-          if (slideState === 0) {
-            slideElement.style.opacity = 1;
-          } else {
-            slideElement.style.opacity = 0;
-          }
-        },
-        progress: function(slideState, progress, slideElement) {
-          progress = Math.abs(progress);
-          if (slideState === 0) {
-            slideElement.style.opacity = 1 - progress;
-          } else {
-            slideElement.style.opacity = progress;
-          }
-        },
-        after: function(slideState, slideElement) {
-          if (slideState === 0) {
-            slideElement.style.zIndex = 0;
-          } else {
-            slideElement.style.zIndex = 1;
-          }
+    document.querySelector('#next1').addEventListener('click', function() {
+      slideshow1.goToNext();
+    });
+    document.querySelector('#prev1').addEventListener('click', function() {
+      slideshow1.goToPrev();
+    });
+
+    // custom effect
+    Slideshow.registerEffect('awesome-fade', {
+      before: function(slideState, slideElement) {
+        if (slideState === 0) {
+          slideElement.style.opacity = 1;
+        } else {
+          slideElement.style.opacity = 0;
+        }
+      },
+      progress: function(slideState, progress, slideElement) {
+        progress = Math.abs(progress);
+        if (slideState === 0) {
+          slideElement.style.opacity = 1 - progress;
+        } else {
+          slideElement.style.opacity = progress;
+        }
+      },
+      after: function(slideState, slideElement) {
+        if (slideState === 0) {
+          slideElement.style.zIndex = 0;
+        } else {
+          slideElement.style.zIndex = 1;
         }
       }
     });
-    if(window.addEventListener) {
-      document.querySelector('#next2').addEventListener('click', function() {
-        slideshow2.goToNext();
-      });
-      document.querySelector('#prev2').addEventListener('click', function() {
-        slideshow2.goToPrev();
-      });
-    } else {
-      document.querySelector('#next2').attachEvent('onclick', function() {
-        slideshow2.goToNext();
-      });
-      document.querySelector('#prev2').attachEvent('onclick', function() {
-        slideshow2.goToPrev();
-      });
-    }
+
+    slidesContainer2 = document.querySelector('.slides2');
+    slideshow2 = new Slideshow(slidesContainer2, {
+      animationDuration: 600,
+      effect: 'awesome-fade'
+    });
+    document.querySelector('#next2').addEventListener('click', function() {
+      slideshow2.goToNext();
+    });
+    document.querySelector('#prev2').addEventListener('click', function() {
+      slideshow2.goToPrev();
+    });
   </script>
 </body>
 </html>
