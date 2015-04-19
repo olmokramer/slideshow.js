@@ -206,7 +206,7 @@ class Slideshow
     # return if an animation is in progress
     return if @currentAnimation?
     # call onWillChange
-    @options.onWillChange?.call @, currentSlide, targetSlide, indexOf @slides, targetSlide
+    @options.onWillChange?.call @, currentSlide, targetSlide, @current + 1
     # progress and durationMod are only passed from a touch event
     progress = initialProgress ? 0
     durationMod ?= 1
@@ -241,8 +241,8 @@ class Slideshow
       effectAfter?.call @, 1, targetSlide
       # set the new currentSlide
       setCurrentSlide.call @, targetSlide
-      callback?.call @, currentSlide, targetSlide, indexOf @slides, targetSlide
-      @options.onDidChange?.call @, currentSlide, targetSlide, indexOf @slides, targetSlide
+      callback?.call @, currentSlide, targetSlide, @current
+      @options.onDidChange?.call @, currentSlide, targetSlide, @current
     # call the progress functions
     effectProgress = @options.effect.progress
     effectProgress?.call @, 0, progress * direction, currentSlide
@@ -351,6 +351,8 @@ class Slideshow
 
   # get the currently visible slide
   getCurrentSlide: -> @slides[@current]
+
+  getCurrentIndex: -> @current
 
   # get the slide after the currently visible one
   getNextSlide: -> @getSlide @current + 1

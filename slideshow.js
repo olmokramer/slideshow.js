@@ -287,7 +287,7 @@
         return;
       }
       if ((_ref = this.options.onWillChange) != null) {
-        _ref.call(this, currentSlide, targetSlide, indexOf(this.slides, targetSlide));
+        _ref.call(this, currentSlide, targetSlide, this.current + 1);
       }
       progress = initialProgress != null ? initialProgress : 0;
       if (durationMod == null) {
@@ -334,10 +334,10 @@
         }
         setCurrentSlide.call(this, targetSlide);
         if (callback != null) {
-          callback.call(this, currentSlide, targetSlide, indexOf(this.slides, targetSlide));
+          callback.call(this, currentSlide, targetSlide, this.current);
         }
         if ((_ref1 = this.options.onDidChange) != null) {
-          _ref1.call(this, currentSlide, targetSlide, indexOf(this.slides, targetSlide));
+          _ref1.call(this, currentSlide, targetSlide, this.current);
         }
       }
       effectProgress = this.options.effect.progress;
@@ -480,6 +480,10 @@
 
     Slideshow.prototype.getCurrentSlide = function() {
       return this.slides[this.current];
+    };
+
+    Slideshow.prototype.getCurrentIndex = function() {
+      return this.current;
     };
 
     Slideshow.prototype.getNextSlide = function() {
