@@ -332,6 +332,7 @@
         if ((_ref1 = this.options.onDidChange) != null) {
           _ref1.call(this, currentSlide, targetSlide, this.current);
         }
+        setCurrentSlide.call(this, targetSlide);
       }
       effectProgress = this.options.effect.progress;
       if (effectProgress != null) {
