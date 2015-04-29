@@ -243,6 +243,7 @@ class Slideshow
       setCurrentSlide.call @, targetSlide
       callback?.call @, currentSlide, targetSlide, @current
       @options.onDidChange?.call @, currentSlide, targetSlide, @current
+      setCurrentSlide.call @, targetSlide
     # call the progress functions
     effectProgress = @options.effect.progress
     effectProgress?.call @, 0, progress * direction, currentSlide
