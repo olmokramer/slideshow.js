@@ -58,6 +58,8 @@ clone = (object) -> extend {}, object
 
 bind = (fn, context) -> -> fn.apply context, [].slice.call arguments
 
+now = Date.now ? -> new Date().getTime()
+
 class Slideshow
   constructor: (element, options = {}) ->
     # test if element is a valid html element or maybe
@@ -163,8 +165,8 @@ class Slideshow
 
   initSlides = ->
     # we don't want the slides to be visible outside their container
-    effectBefore = @options.effect.before
-    effectAfter = @options.effect.after
+    effectBefore = @options.effect.before ? ->
+    effectAfter = @options.effect.after ? ->
     # el.children may behave weird in IE8
     @slides = @el.children ? @el.childNodes
     @current = 0
@@ -172,11 +174,11 @@ class Slideshow
       # call the before and after functions once on all slides, so all slides
       # are positioned properly
       if i is @current
-        effectBefore?.call @, 0, @slides[@current]
-        effectAfter?.call @, 1, @slides[@current]
+        effectBefore.call @, 0, @slides[@current]
+        effectAfter.call @, 1, @slides[@current]
       else
-        effectBefore?.call @, 1, slide
-        effectAfter?.call @, 0, slide
+        effectBefore.call @, 1, slide
+        effectAfter.call @, 0, slide
 
   initEvents = ->
     @eventStart = bind eventStart, @
@@ -215,11 +217,11 @@ class Slideshow
     # slides shouldn't be prepared if this is called from a touch event
     # because this has already happened in touchStart
     unless @currentEvent?
-      effectBefore = @options.effect.before
-      effectBefore?.call @, 0, currentSlide
-      effectBefore?.call @, (if direction < 0 then 1 else -1), targetSlide
+      effectBefore = @options.effect.before ? ->
+      effectBefore.call @, 0, currentSlide
+      effectBefore.call @, (if direction < 0 then 1 else -1), targetSlide
     # cache the animation state
-    @currentAnimation = {start:Date.now(), currentSlide, targetSlide, direction, duration, progress, callback}
+    @currentAnimation = {start: now(), currentSlide, targetSlide, direction, duration, progress, callback}
     # and finally start animating
     requestAnimationFrame bind nextFrame, @
 
@@ -229,25 +231,25 @@ class Slideshow
     anim = @currentAnimation
     {start, progress, duration, direction, currentSlide, targetSlide, callback} = @currentAnimation
     # calculate the actual progress (fraction of the animationDuration)
-    progress = progress + (Date.now() - start) / duration * (1 - progress)
+    progress = progress + (now() - start) / duration * (1 - progress)
     if progress >= 1
       progress = 1
       # the animation has ended
       @currentAnimation = null
       cancelAnimationFrame id
       # call the after and callback functions
-      effectAfter = @options.effect.after
-      effectAfter?.call @, 0, currentSlide
-      effectAfter?.call @, 1, targetSlide
+      effectAfter = @options.effect.after ? ->
+      effectAfter.call @, 0, currentSlide
+      effectAfter.call @, 1, targetSlide
       # set the new currentSlide
       setCurrentSlide.call @, targetSlide
       callback?.call @, currentSlide, targetSlide, @current
       @options.onDidChange?.call @, currentSlide, targetSlide, @current
       setCurrentSlide.call @, targetSlide
     # call the progress functions
-    effectProgress = @options.effect.progress
-    effectProgress?.call @, 0, progress * direction, currentSlide
-    effectProgress?.call @, 1, progress * direction, targetSlide
+    effectProgress = @options.effect.progress ? ->
+    effectProgress.call @, 0, progress * direction, currentSlide
+    effectProgress.call @, 1, progress * direction, targetSlide
 
   eventStart = (event) ->
     if @options.preventDefaultEvents
@@ -259,10 +261,10 @@ class Slideshow
     prevSlide = @getPrevSlide()
     nextSlide = @getNextSlide()
     # prepare the slides to be animated
-    effectBefore = @options.effect.before
-    effectBefore?.call @, 0, currentSlide
-    effectBefore?.call @, -1, prevSlide
-    effectBefore?.call @, 1, nextSlide
+    effectBefore = @options.effect.before ? ->
+    effectBefore.call @, 0, currentSlide
+    effectBefore.call @, -1, prevSlide
+    effectBefore.call @, 1, nextSlide
     # cache the touch event state
     {timeStamp} = event
     {pageX, pageY} = event.touches?[0] ? event
@@ -281,7 +283,7 @@ class Slideshow
     # animate the slide
     targetSlide = if progress < 0 then @currentEvent.nextSlide else @currentEvent.prevSlide
     requestAnimationFrame =>
-      effectProgress = @options.effect.progress
+      effectProgress = @options.effect.progress ? ->
       effectProgress.call @, 0, progress, @currentEvent.currentSlide
       effectProgress.call @, 1, progress, targetSlide
 
