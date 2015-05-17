@@ -274,14 +274,14 @@
     };
 
     animateSlides = function(currentSlide, targetSlide, _arg, callback) {
-      var direction, duration, durationMod, effectBefore, initialProgress, progress, _ref1, _ref2;
+      var direction, duration, durationMod, effectBefore, initialProgress, progress, _ref1, _ref2, _ref3;
       direction = _arg.direction, initialProgress = _arg.initialProgress, durationMod = _arg.durationMod;
       if (this.currentAnimation != null) {
         return;
       }
-      if (!this.currentEvent.cancelOnWillChange) {
-        if ((_ref1 = this.options.onWillChange) != null) {
-          _ref1.call(this, currentSlide, targetSlide, (this.current + 1) % this.slides.length);
+      if ((this.currentEvent != null) && !((_ref1 = this.currentEvent) != null ? _ref1.cancelOnWillChange : void 0)) {
+        if ((_ref2 = this.options.onWillChange) != null) {
+          _ref2.call(this, currentSlide, targetSlide, (this.current + 1) % this.slides.length);
         }
       }
       progress = initialProgress != null ? initialProgress : 0;
@@ -290,7 +290,7 @@
       }
       duration = Math.max(1, this.options.animationDuration * (1 - progress) * durationMod);
       if (this.currentEvent == null) {
-        effectBefore = (_ref2 = this.options.effect.before) != null ? _ref2 : Function.prototype;
+        effectBefore = (_ref3 = this.options.effect.before) != null ? _ref3 : Function.prototype;
         effectBefore.call(this, 0, currentSlide);
         effectBefore.call(this, (direction < 0 ? 1 : -1), targetSlide);
       }
