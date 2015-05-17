@@ -208,7 +208,7 @@ class Slideshow
     # return if an animation is in progress
     return if @currentAnimation?
     # call onWillChange
-    if @currentEvent? and not @currentEvent?.cancelOnWillChange
+    unless @currentEvent? and @currentEvent.cancelOnWillChange
       @options.onWillChange?.call @, currentSlide, targetSlide, (@current + 1) % @slides.length
     # progress and durationMod are only passed from a touch event
     progress = initialProgress ? 0
@@ -288,7 +288,6 @@ class Slideshow
       @currentEvent.targetslide = targetSlide
     # trigger onWillChange event
     unless @currentEvent.cancelOnWillChange and progress isnt 0
-      console.log 'no cancel onwillchange'
       @currentEvent.cancelOnWillChange = true
       nextIndex = (@current - progress / Math.abs progress) % @slides.length
       @options.onWillChange?.call @, @currentEvent.currentSlide, targetSlide, (@current - progress / Math.abs progress) % @slides.length
