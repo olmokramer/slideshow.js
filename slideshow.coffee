@@ -85,7 +85,7 @@ class Slideshow
   defaults =
     touchEventsEnabled: true
     mouseEventsEnabled: true
-    preventDefaultEvents: true
+    swipeThreshold: 0
     animationDuration: 400
     animationDirection: 'x'
     effect: 'default'
@@ -253,8 +253,6 @@ class Slideshow
     effectProgress.call @, 1, progress * direction, targetSlide
 
   eventStart = (event) ->
-    if @options.preventDefaultEvents
-      event.preventDefault()
     # do nothing if an animation or touch event is currently in progress
     return if @currentAnimation? or @currentEvent?
     # get the relevant slides
@@ -272,8 +270,6 @@ class Slideshow
     @currentEvent = {currentSlide, prevSlide, nextSlide, timeStamp, startX, startY}
 
   eventProgress = (event) ->
-    if @options.preventDefaultEvents
-      event.preventDefault()
     # do nothing if an animation is in progress, or there's no touch event in progress yet (which souldn't happen)
     return if @currentAnimation or not @currentEvent?
     {pageX, pageY} = event.touches?[0] ? event
@@ -309,8 +305,6 @@ class Slideshow
       effectProgress.call @, 1, progress, targetSlide
 
   eventEnd = (event) ->
-    if @options.preventDefaultEvents
-      event.preventDefault()
     # do nothing if an animation is in progress, or there's no touch event in progress yet (which souldn't happen)
     return if @currentAnimation or not @currentEvent?
     {timeStamp} = event

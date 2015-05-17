@@ -34,7 +34,6 @@ Support for touch and mouse events will be automatically detected, but it can be
 | ---                  | ---      | ---      | ---       | --- |
 | touchEventsEnabled   | no       | boolean  | true      | Enable or disable swipe for sliding through the slideshow. |
 | mouseEventsEnabled   | no       | boolean  | true      | Enable or disable mouse events for sliding through the slideshow. |
-| preventDefaultEvents | no       | boolean  | true      | Prevent default events on the slideshow element (prevent scroll while swiping on mobile devices). |
 | animationDuration    | no       | number   | 400       | The duration of the animation. |
 | animationDirection   | no       | string   | 'x'       | 'x': animate horizontally, 'y': animate vertically. The default effect does not support 'y', but that will change. |
 | onWillChange         | no       | function | no-op     | Fired when the animation is about to start, in the case of a touch event, this fires right after the `touchEnd` event. `this` refers to the slideshow instance. Receives the same parameters as the callbacks of the `goTo*` methods. |

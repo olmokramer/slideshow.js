@@ -115,7 +115,7 @@
     defaults = {
       touchEventsEnabled: true,
       mouseEventsEnabled: true,
-      preventDefaultEvents: true,
+      swipeThreshold: 0,
       animationDuration: 400,
       animationDirection: 'x',
       effect: 'default'
@@ -335,9 +335,6 @@
 
     eventStart = function(event) {
       var currentSlide, effectBefore, nextSlide, prevSlide, startX, startY, timeStamp, _ref1, _ref2, _ref3, _ref4;
-      if (this.options.preventDefaultEvents) {
-        event.preventDefault();
-      }
       if ((this.currentAnimation != null) || (this.currentEvent != null)) {
         return;
       }
@@ -362,9 +359,6 @@
 
     eventProgress = function(event) {
       var nextIndex, pageX, pageY, progress, targetSlide, _ref1, _ref2, _ref3, _ref4;
-      if (this.options.preventDefaultEvents) {
-        event.preventDefault();
-      }
       if (this.currentAnimation || (this.currentEvent == null)) {
         return;
       }
@@ -415,9 +409,6 @@
 
     eventEnd = function(event) {
       var condition, currentSlide, direction, durationMod, initialProgress, pageX, pageY, progress, progressAbs, targetSlide, timePassed, timeStamp, _i, _len, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6;
-      if (this.options.preventDefaultEvents) {
-        event.preventDefault();
-      }
       if (this.currentAnimation || (this.currentEvent == null)) {
         return;
       }
