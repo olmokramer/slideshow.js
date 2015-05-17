@@ -221,8 +221,8 @@
 
     initSlides = function() {
       var effectAfter, effectBefore, i, slide, _i, _len, _ref1, _ref2, _ref3, _ref4, _results;
-      effectBefore = (_ref1 = this.options.effect.before) != null ? _ref1 : function() {};
-      effectAfter = (_ref2 = this.options.effect.after) != null ? _ref2 : function() {};
+      effectBefore = (_ref1 = this.options.effect.before) != null ? _ref1 : Function.prototype;
+      effectAfter = (_ref2 = this.options.effect.after) != null ? _ref2 : Function.prototype;
       this.slides = (_ref3 = this.el.children) != null ? _ref3 : this.el.childNodes;
       this.current = 0;
       _ref4 = this.slides;
@@ -279,8 +279,10 @@
       if (this.currentAnimation != null) {
         return;
       }
-      if ((_ref1 = this.options.onWillChange) != null) {
-        _ref1.call(this, currentSlide, targetSlide, (this.current + 1) % this.children.length);
+      if (!this.currentEvent.cancelOnWillChange) {
+        if ((_ref1 = this.options.onWillChange) != null) {
+          _ref1.call(this, currentSlide, targetSlide, (this.current + 1) % this.slides.length);
+        }
       }
       progress = initialProgress != null ? initialProgress : 0;
       if (durationMod == null) {
@@ -288,7 +290,7 @@
       }
       duration = Math.max(1, this.options.animationDuration * (1 - progress) * durationMod);
       if (this.currentEvent == null) {
-        effectBefore = (_ref2 = this.options.effect.before) != null ? _ref2 : function() {};
+        effectBefore = (_ref2 = this.options.effect.before) != null ? _ref2 : Function.prototype;
         effectBefore.call(this, 0, currentSlide);
         effectBefore.call(this, (direction < 0 ? 1 : -1), targetSlide);
       }
@@ -314,7 +316,7 @@
         progress = 1;
         this.currentAnimation = null;
         cancelAnimationFrame(id);
-        effectAfter = (_ref2 = this.options.effect.after) != null ? _ref2 : function() {};
+        effectAfter = (_ref2 = this.options.effect.after) != null ? _ref2 : Function.prototype;
         effectAfter.call(this, 0, currentSlide);
         effectAfter.call(this, 1, targetSlide);
         setCurrentSlide.call(this, targetSlide);
@@ -326,13 +328,13 @@
         }
         setCurrentSlide.call(this, targetSlide);
       }
-      effectProgress = (_ref4 = this.options.effect.progress) != null ? _ref4 : function() {};
+      effectProgress = (_ref4 = this.options.effect.progress) != null ? _ref4 : Function.prototype;
       effectProgress.call(this, 0, progress * direction, currentSlide);
       return effectProgress.call(this, 1, progress * direction, targetSlide);
     };
 
     eventStart = function(event) {
-      var currentSlide, effectBefore, nextSlide, pageX, pageY, prevSlide, timeStamp, _ref1, _ref2, _ref3, _ref4;
+      var currentSlide, effectBefore, nextSlide, prevSlide, startX, startY, timeStamp, _ref1, _ref2, _ref3, _ref4;
       if (this.options.preventDefaultEvents) {
         event.preventDefault();
       }
@@ -342,24 +344,24 @@
       currentSlide = this.getCurrentSlide();
       prevSlide = this.getPrevSlide();
       nextSlide = this.getNextSlide();
-      effectBefore = (_ref1 = this.options.effect.before) != null ? _ref1 : function() {};
+      effectBefore = (_ref1 = this.options.effect.before) != null ? _ref1 : Function.prototype;
       effectBefore.call(this, 0, currentSlide);
       effectBefore.call(this, -1, prevSlide);
       effectBefore.call(this, 1, nextSlide);
       timeStamp = event.timeStamp;
-      _ref4 = (_ref2 = (_ref3 = event.touches) != null ? _ref3[0] : void 0) != null ? _ref2 : event, pageX = _ref4.pageX, pageY = _ref4.pageY;
+      _ref4 = (_ref2 = (_ref3 = event.touches) != null ? _ref3[0] : void 0) != null ? _ref2 : event, startX = _ref4.pageX, startY = _ref4.pageY;
       return this.currentEvent = {
         currentSlide: currentSlide,
         prevSlide: prevSlide,
         nextSlide: nextSlide,
         timeStamp: timeStamp,
-        pageX: pageX,
-        pageY: pageY
+        startX: startX,
+        startY: startY
       };
     };
 
     eventProgress = function(event) {
-      var pageX, pageY, progress, targetSlide, _ref1, _ref2, _ref3;
+      var nextIndex, pageX, pageY, progress, targetSlide, _ref1, _ref2, _ref3, _ref4;
       if (this.options.preventDefaultEvents) {
         event.preventDefault();
       }
@@ -370,16 +372,29 @@
       progress = (function() {
         switch (this.options.animationDirection) {
           case 'x':
-            return (pageX - this.currentEvent.pageX) / this.el.clientWidth;
+            return (pageX - this.currentEvent.startX) / this.el.clientWidth;
           case 'y':
-            return (pageY - this.currentEvent.pageY) / this.el.clientHeight;
+            return (pageY - this.currentEvent.startY) / this.el.clientHeight;
         }
       }).call(this);
       targetSlide = progress < 0 ? this.currentEvent.nextSlide : this.currentEvent.prevSlide;
+      if (targetSlide !== this.currentEvent.targetSlide) {
+        this.currentEvent.cancelOnWillChange = false;
+        this.currentEvent.targetslide = targetSlide;
+      }
+      if (!(this.currentEvent.cancelOnWillChange && progress !== 0)) {
+        console.log('no cancel onwillchange');
+        this.currentEvent.cancelOnWillChange = true;
+        nextIndex = (this.current - progress / Math.abs(progress)) % this.slides.length;
+        if ((_ref4 = this.options.onWillChange) != null) {
+          _ref4.call(this, this.currentEvent.currentSlide, targetSlide, (this.current - progress / Math.abs(progress)) % this.slides.length);
+        }
+      }
+      this.currentEvent.targetSlide = targetSlide;
       return requestAnimationFrame((function(_this) {
         return function() {
-          var effectProgress, _ref4;
-          effectProgress = (_ref4 = _this.options.effect.progress) != null ? _ref4 : function() {};
+          var effectProgress, _ref5;
+          effectProgress = (_ref5 = _this.options.effect.progress) != null ? _ref5 : Function.prototype;
           effectProgress.call(_this, 0, progress, _this.currentEvent.currentSlide);
           return effectProgress.call(_this, 1, progress, targetSlide);
         };
@@ -387,7 +402,7 @@
     };
 
     eventEnd = function(event) {
-      var condition, currentSlide, direction, durationMod, initialProgress, pageX, pageY, progress, progressAbs, targetSlide, timePassed, timeStamp, _i, _len, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6;
+      var cancelOnWillChange, condition, currentSlide, direction, durationMod, initialProgress, pageX, pageY, progress, progressAbs, targetSlide, timePassed, timeStamp, _i, _len, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6;
       if (this.options.preventDefaultEvents) {
         event.preventDefault();
       }
@@ -399,9 +414,9 @@
       progress = (function() {
         switch (this.options.animationDirection) {
           case 'x':
-            return (pageX - this.currentEvent.pageX) / this.el.clientWidth;
+            return (pageX - this.currentEvent.startX) / this.el.clientWidth;
           case 'y':
-            return (pageY - this.currentEvent.pageY) / this.el.clientHeight;
+            return (pageY - this.currentEvent.startY) / this.el.clientHeight;
         }
       }).call(this);
       if (progress === 0) {
@@ -437,10 +452,12 @@
         }
         initialProgress = 1 - progressAbs;
       }
+      cancelOnWillChange = true;
       return animateSlides.call(this, currentSlide, targetSlide, {
         direction: direction,
         initialProgress: initialProgress,
-        durationMod: durationMod
+        durationMod: durationMod,
+        cancelOnWillChange: cancelOnWillChange
       }, (function(_this) {
         return function() {
           return _this.currentEvent = null;

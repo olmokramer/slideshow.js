@@ -165,8 +165,8 @@ class Slideshow
 
   initSlides = ->
     # we don't want the slides to be visible outside their container
-    effectBefore = @options.effect.before ? ->
-    effectAfter = @options.effect.after ? ->
+    effectBefore = @options.effect.before ? Function.prototype
+    effectAfter = @options.effect.after ? Function.prototype
     # el.children may behave weird in IE8
     @slides = @el.children ? @el.childNodes
     @current = 0
@@ -208,7 +208,8 @@ class Slideshow
     # return if an animation is in progress
     return if @currentAnimation?
     # call onWillChange
-    @options.onWillChange?.call @, currentSlide, targetSlide, (@current + 1) % @children.length
+    unless @currentEvent.cancelOnWillChange
+      @options.onWillChange?.call @, currentSlide, targetSlide, (@current + 1) % @slides.length
     # progress and durationMod are only passed from a touch event
     progress = initialProgress ? 0
     durationMod ?= 1
@@ -217,7 +218,7 @@ class Slideshow
     # slides shouldn't be prepared if this is called from a touch event
     # because this has already happened in touchStart
     unless @currentEvent?
-      effectBefore = @options.effect.before ? ->
+      effectBefore = @options.effect.before ? Function.prototype
       effectBefore.call @, 0, currentSlide
       effectBefore.call @, (if direction < 0 then 1 else -1), targetSlide
     # cache the animation state
@@ -238,7 +239,7 @@ class Slideshow
       @currentAnimation = null
       cancelAnimationFrame id
       # call the after and callback functions
-      effectAfter = @options.effect.after ? ->
+      effectAfter = @options.effect.after ? Function.prototype
       effectAfter.call @, 0, currentSlide
       effectAfter.call @, 1, targetSlide
       # set the new currentSlide
@@ -247,7 +248,7 @@ class Slideshow
       @options.onDidChange?.call @, currentSlide, targetSlide, @current
       setCurrentSlide.call @, targetSlide
     # call the progress functions
-    effectProgress = @options.effect.progress ? ->
+    effectProgress = @options.effect.progress ? Function.prototype
     effectProgress.call @, 0, progress * direction, currentSlide
     effectProgress.call @, 1, progress * direction, targetSlide
 
@@ -261,29 +262,40 @@ class Slideshow
     prevSlide = @getPrevSlide()
     nextSlide = @getNextSlide()
     # prepare the slides to be animated
-    effectBefore = @options.effect.before ? ->
+    effectBefore = @options.effect.before ? Function.prototype
     effectBefore.call @, 0, currentSlide
     effectBefore.call @, -1, prevSlide
     effectBefore.call @, 1, nextSlide
     # cache the touch event state
     {timeStamp} = event
-    {pageX, pageY} = event.touches?[0] ? event
-    @currentEvent = {currentSlide, prevSlide, nextSlide, timeStamp, pageX, pageY}
+    {pageX: startX, pageY: startY} = event.touches?[0] ? event
+    @currentEvent = {currentSlide, prevSlide, nextSlide, timeStamp, startX, startY}
 
   eventProgress = (event) ->
     if @options.preventDefaultEvents
       event.preventDefault()
     # do nothing if an animation is in progress, or there's no touch event in progress yet (which souldn't happen)
     return if @currentAnimation or not @currentEvent?
-    # calculate the progress based on the distance touched
     {pageX, pageY} = event.touches?[0] ? event
+    # calculate the progress based on the distance touched
     progress = switch @options.animationDirection
-      when 'x' then (pageX - @currentEvent.pageX) / @el.clientWidth
-      when 'y' then (pageY - @currentEvent.pageY) / @el.clientHeight
-    # animate the slide
+      when 'x' then (pageX - @currentEvent.startX) / @el.clientWidth
+      when 'y' then (pageY - @currentEvent.startY) / @el.clientHeight
+    # get the target slide
     targetSlide = if progress < 0 then @currentEvent.nextSlide else @currentEvent.prevSlide
+    if targetSlide isnt @currentEvent.targetSlide
+      @currentEvent.cancelOnWillChange = false
+      @currentEvent.targetslide = targetSlide
+    # trigger onWillChange event
+    unless @currentEvent.cancelOnWillChange and progress isnt 0
+      console.log 'no cancel onwillchange'
+      @currentEvent.cancelOnWillChange = true
+      nextIndex = (@current - progress / Math.abs progress) % @slides.length
+      @options.onWillChange?.call @, @currentEvent.currentSlide, targetSlide, (@current - progress / Math.abs progress) % @slides.length
+    @currentEvent.targetSlide = targetSlide
+    # animate the slide
     requestAnimationFrame =>
-      effectProgress = @options.effect.progress ? ->
+      effectProgress = @options.effect.progress ? Function.prototype
       effectProgress.call @, 0, progress, @currentEvent.currentSlide
       effectProgress.call @, 1, progress, targetSlide
 
@@ -296,8 +308,8 @@ class Slideshow
     {pageX, pageY} = event.changedTouches?[0] ? event
     # calculate the final progress that has been made
     progress = switch @options.animationDirection
-      when 'x' then (pageX - @currentEvent.pageX) / @el.clientWidth
-      when 'y' then (pageY - @currentEvent.pageY) / @el.clientHeight
+      when 'x' then (pageX - @currentEvent.startX) / @el.clientWidth
+      when 'y' then (pageY - @currentEvent.startY) / @el.clientHeight
     if progress is 0
       @currentEvent = null
       return
@@ -334,8 +346,9 @@ class Slideshow
       else
         currentSlide = @currentEvent.prevSlide
       initialProgress = 1 - progressAbs
+    cancelOnWillChange = true
     # call the animateSlides function with the parameters
-    animateSlides.call @, currentSlide, targetSlide, {direction, initialProgress, durationMod}, =>
+    animateSlides.call @, currentSlide, targetSlide, {direction, initialProgress, durationMod, cancelOnWillChange}, =>
       @currentEvent = null
 
   preventDefault = (event) ->
