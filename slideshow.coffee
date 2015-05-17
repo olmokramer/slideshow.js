@@ -278,9 +278,19 @@ class Slideshow
     return if @currentAnimation or not @currentEvent?
     {pageX, pageY} = event.touches?[0] ? event
     # calculate the progress based on the distance touched
+    # progress = switch @options.animationDirection
+    #   when 'x' then (pageX - @currentEvent.startX) / @el.clientWidth
+    #   when 'y' then (pageY - @currentEvent.startY) / @el.clientHeight
+    progress =
+      x: (pageX - @currentEvent.startX) / @el.clientWidth
+      y: (pageY - @currentEvent.startY) / @el.clientHeight
     progress = switch @options.animationDirection
-      when 'x' then (pageX - @currentEvent.startX) / @el.clientWidth
-      when 'y' then (pageY - @currentEvent.startY) / @el.clientHeight
+      when 'x'
+        if Math.abs(progress.x) > Math.abs(progress.y) then progress.x
+      when 'y'
+        if Math.abs(progress.y) > Math.abs(progress.x) then progress.y
+    @currentEvent.shouldCancel = !progress
+    return unless progress?
     # get the target slide
     targetSlide = if progress < 0 then @currentEvent.nextSlide else @currentEvent.prevSlide
     if targetSlide isnt @currentEvent.targetSlide
@@ -309,6 +319,13 @@ class Slideshow
     progress = switch @options.animationDirection
       when 'x' then (pageX - @currentEvent.startX) / @el.clientWidth
       when 'y' then (pageY - @currentEvent.startY) / @el.clientHeight
+    if @currentEvent.shouldCancel
+      currentSlide = if progress > 0 then @currentEvent.nextSlide else @currentEvent.prevSlide
+      direction = progress / Math.abs progress
+      initialProgress = 1 - Math.abs progress
+      animateSlides.call @, currentslide, @currentEvent.currentSlide, {direction, initialProgress}
+      @currentEvent = null
+      return
     if progress is 0
       @currentEvent = null
       return
@@ -345,9 +362,8 @@ class Slideshow
       else
         currentSlide = @currentEvent.prevSlide
       initialProgress = 1 - progressAbs
-    cancelOnWillChange = true
     # call the animateSlides function with the parameters
-    animateSlides.call @, currentSlide, targetSlide, {direction, initialProgress, durationMod, cancelOnWillChange}, =>
+    animateSlides.call @, currentSlide, targetSlide, {direction, initialProgress, durationMod}, =>
       @currentEvent = null
 
   preventDefault = (event) ->
