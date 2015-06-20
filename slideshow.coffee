@@ -209,7 +209,7 @@ class Slideshow
     return if @currentAnimation?
     # call onWillChange
     unless @currentEvent? and @currentEvent.cancelOnWillChange
-      @options.onWillChange?.call @, currentSlide, targetSlide, (@current + 1) % @slides.length
+      @options.onWillChange?.call @, currentSlide, targetSlide, (@current - direction / Math.abs(direction)) % @slides.length
     # progress and durationMod are only passed from a touch event
     progress = initialProgress ? 0
     durationMod ?= 1

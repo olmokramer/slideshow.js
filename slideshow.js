@@ -281,7 +281,7 @@
       }
       if (!((this.currentEvent != null) && this.currentEvent.cancelOnWillChange)) {
         if ((_ref1 = this.options.onWillChange) != null) {
-          _ref1.call(this, currentSlide, targetSlide, (this.current + 1) % this.slides.length);
+          _ref1.call(this, currentSlide, targetSlide, (this.current - direction / Math.abs(direction)) % this.slides.length);
         }
       }
       progress = initialProgress != null ? initialProgress : 0;
