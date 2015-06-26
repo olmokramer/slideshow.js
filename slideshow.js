@@ -2,7 +2,8 @@
   'use strict';
   var Slideshow, bind, clone, extend, indexOf, now, _ref,
     __slice = [].slice,
-    __hasProp = {}.hasOwnProperty;
+    __hasProp = {}.hasOwnProperty,
+    __modulo = function(a, b) { return (+a % (b = +b) + b) % b; };
 
   (function(root) {
     var i, lastTime, vendor, vendors, _ref;
@@ -281,7 +282,7 @@
       }
       if (!((this.currentEvent != null) && this.currentEvent.cancelOnWillChange)) {
         if ((_ref1 = this.options.onWillChange) != null) {
-          _ref1.call(this, currentSlide, targetSlide, (this.current - direction / Math.abs(direction)) % this.slides.length);
+          _ref1.call(this, currentSlide, targetSlide, __modulo(this.current - direction / Math.abs(direction), this.slides.length));
         }
       }
       progress = initialProgress != null ? initialProgress : 0;
@@ -391,9 +392,9 @@
       }
       if (!(this.currentEvent.cancelOnWillChange && progress !== 0)) {
         this.currentEvent.cancelOnWillChange = true;
-        nextIndex = (this.current - progress / Math.abs(progress)) % this.slides.length;
+        nextIndex = __modulo(this.current - progress / Math.abs(progress), this.slides.length);
         if ((_ref4 = this.options.onWillChange) != null) {
-          _ref4.call(this, this.currentEvent.currentSlide, targetSlide, (this.current - progress / Math.abs(progress)) % this.slides.length);
+          _ref4.call(this, this.currentEvent.currentSlide, targetSlide, nextIndex);
         }
       }
       this.currentEvent.targetSlide = targetSlide;
@@ -482,11 +483,7 @@
     };
 
     Slideshow.prototype.getSlide = function(i) {
-      i = i % this.slides.length;
-      if (i < 0) {
-        i += this.slides.length;
-      }
-      return this.slides[i];
+      return this.slides[__modulo(i, this.slides.length)];
     };
 
     Slideshow.prototype.getCurrentSlide = function() {

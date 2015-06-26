@@ -209,7 +209,7 @@ class Slideshow
     return if @currentAnimation?
     # call onWillChange
     unless @currentEvent? and @currentEvent.cancelOnWillChange
-      @options.onWillChange?.call @, currentSlide, targetSlide, (@current - direction / Math.abs(direction)) % @slides.length
+      @options.onWillChange?.call @, currentSlide, targetSlide, (@current - direction / Math.abs(direction)) %% @slides.length
     # progress and durationMod are only passed from a touch event
     progress = initialProgress ? 0
     durationMod ?= 1
@@ -295,8 +295,8 @@ class Slideshow
     # trigger onWillChange event
     unless @currentEvent.cancelOnWillChange and progress isnt 0
       @currentEvent.cancelOnWillChange = true
-      nextIndex = (@current - progress / Math.abs progress) % @slides.length
-      @options.onWillChange?.call @, @currentEvent.currentSlide, targetSlide, (@current - progress / Math.abs progress) % @slides.length
+      nextIndex = (@current - progress / Math.abs progress) %% @slides.length
+      @options.onWillChange?.call @, @currentEvent.currentSlide, targetSlide, nextIndex
     @currentEvent.targetSlide = targetSlide
     # animate the slide
     requestAnimationFrame =>
@@ -373,9 +373,7 @@ class Slideshow
   # getSlide(-1) === getSlide(slides.length - 1)
   # and getSlide(slides.length) === getSlide(0)
   getSlide: (i) ->
-    i = i % @slides.length
-    if i < 0 then i += @slides.length
-    @slides[i]
+    @slides[i %% @slides.length]
 
   # get the currently visible slide
   getCurrentSlide: -> @slides[@current]
