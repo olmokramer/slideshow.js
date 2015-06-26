@@ -291,7 +291,7 @@ class Slideshow
     targetSlide = if progress < 0 then @currentEvent.nextSlide else @currentEvent.prevSlide
     if targetSlide isnt @currentEvent.targetSlide
       @currentEvent.cancelOnWillChange = false
-      @currentEvent.targetslide = targetSlide
+      @currentEvent.targetSlide = targetSlide
     # trigger onWillChange event
     unless @currentEvent.cancelOnWillChange and progress isnt 0
       @currentEvent.cancelOnWillChange = true
@@ -317,7 +317,7 @@ class Slideshow
       currentSlide = if progress > 0 then @currentEvent.nextSlide else @currentEvent.prevSlide
       direction = progress / Math.abs progress
       initialProgress = 1 - Math.abs progress
-      animateSlides.call @, currentslide, @currentEvent.currentSlide, {direction, initialProgress}
+      animateSlides.call @, currentSlide, @currentEvent.currentSlide, {direction, initialProgress}
       @currentEvent = null
       return
     if progress is 0

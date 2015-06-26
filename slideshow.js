@@ -387,7 +387,7 @@
       targetSlide = progress < 0 ? this.currentEvent.nextSlide : this.currentEvent.prevSlide;
       if (targetSlide !== this.currentEvent.targetSlide) {
         this.currentEvent.cancelOnWillChange = false;
-        this.currentEvent.targetslide = targetSlide;
+        this.currentEvent.targetSlide = targetSlide;
       }
       if (!(this.currentEvent.cancelOnWillChange && progress !== 0)) {
         this.currentEvent.cancelOnWillChange = true;
@@ -426,7 +426,7 @@
         currentSlide = progress > 0 ? this.currentEvent.nextSlide : this.currentEvent.prevSlide;
         direction = progress / Math.abs(progress);
         initialProgress = 1 - Math.abs(progress);
-        animateSlides.call(this, currentslide, this.currentEvent.currentSlide, {
+        animateSlides.call(this, currentSlide, this.currentEvent.currentSlide, {
           direction: direction,
           initialProgress: initialProgress
         });
