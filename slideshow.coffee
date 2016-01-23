@@ -244,7 +244,8 @@ class Slideshow
       effectAfter.call @, 1, targetSlide
       # set the new currentSlide
       setCurrentSlide.call @, targetSlide
-      callback?.call @, currentSlide, targetSlide, @current
+      if typeof callback == 'function'
+        callback.call @, currentSlide, targetSlide, @current
       @options.onDidChange?.call @, currentSlide, targetSlide, @current
       setCurrentSlide.call @, targetSlide
     # call the progress functions

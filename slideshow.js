@@ -1,19 +1,19 @@
 (function() {
   'use strict';
-  var Slideshow, bind, clone, extend, indexOf, now, _ref,
-    __slice = [].slice,
-    __hasProp = {}.hasOwnProperty,
-    __modulo = function(a, b) { return (+a % (b = +b) + b) % b; };
+  var Slideshow, bind, clone, extend, indexOf, now, ref,
+    slice = [].slice,
+    hasProp = {}.hasOwnProperty,
+    modulo = function(a, b) { return (+a % (b = +b) + b) % b; };
 
   (function(root) {
-    var i, lastTime, vendor, vendors, _ref;
+    var i, lastTime, ref, vendor, vendors;
     lastTime = 0;
     vendors = ['ms', 'moz', 'webkit', 'o'];
     i = 0;
     while (i < vendors.length && !root.requestAnimationFrame) {
       vendor = vendors[i++];
       root.requestAnimationFrame = root[vendor + "RequestAnimationFrame"];
-      root.cancelAnimationFrame = (_ref = root[vendor + "CancelAnimationFrame"]) != null ? _ref : root[vendor + "CancelRequestAnimationFrame"];
+      root.cancelAnimationFrame = (ref = root[vendor + "CancelAnimationFrame"]) != null ? ref : root[vendor + "CancelRequestAnimationFrame"];
     }
     if (root.requestAnimationFrame == null) {
       root.requestAnimationFrame = function(callback) {
@@ -35,14 +35,14 @@
   })(typeof window !== "undefined" && window !== null ? window : this);
 
   indexOf = function(array, match) {
-    var i, item, _i, _len;
+    var i, item, j, len;
     if (array == null) {
       return;
     }
     if (Array.prototype.indexOf != null) {
       return Array.prototype.indexOf.call(Array.prototype.slice.call(array), match);
     }
-    for (i = _i = 0, _len = array.length; _i < _len; i = ++_i) {
+    for (i = j = 0, len = array.length; j < len; i = ++j) {
       item = array[i];
       if (item === match) {
         return i;
@@ -52,15 +52,15 @@
   };
 
   extend = function() {
-    var object, objects, prop, target, _i, _len;
-    target = arguments[0], objects = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+    var j, len, object, objects, prop, target;
+    target = arguments[0], objects = 2 <= arguments.length ? slice.call(arguments, 1) : [];
     if (typeof target !== 'object') {
       return;
     }
-    for (_i = 0, _len = objects.length; _i < _len; _i++) {
-      object = objects[_i];
+    for (j = 0, len = objects.length; j < len; j++) {
+      object = objects[j];
       for (prop in object) {
-        if (!__hasProp.call(object, prop)) continue;
+        if (!hasProp.call(object, prop)) continue;
         target[prop] = object[prop];
       }
     }
@@ -77,7 +77,7 @@
     };
   };
 
-  now = (_ref = Date.now) != null ? _ref : function() {
+  now = (ref = Date.now) != null ? ref : function() {
     return new Date().getTime();
   };
 
@@ -105,11 +105,11 @@
     }
 
     Slideshow.prototype.configure = function(options) {
-      var _base;
+      var base;
       this.options = extend({}, defaults, options);
       if (typeof this.options.effect === 'string' && (effects[this.options.effect] != null)) {
         this.options.effect = clone(effects[this.options.effect]);
-        return (_base = this.options.effect).conditions != null ? _base.conditions : _base.conditions = effects["default"].conditions.concat();
+        return (base = this.options.effect).conditions != null ? base.conditions : base.conditions = effects["default"].conditions.concat();
       }
     };
 
@@ -126,14 +126,14 @@
       "default": (function() {
         var transformCSSProperty;
         transformCSSProperty = (function() {
-          var prefixed, style, vendor, _i, _len, _ref1;
+          var j, len, prefixed, ref1, style, vendor;
           style = document.createElement('div').style;
           if (style['transform'] != null) {
             return 'transform';
           }
-          _ref1 = ['moz', 'webkit', 'khtml', 'o', 'ms'];
-          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-            vendor = _ref1[_i];
+          ref1 = ['moz', 'webkit', 'khtml', 'o', 'ms'];
+          for (j = 0, len = ref1.length; j < len; j++) {
+            vendor = ref1[j];
             prefixed = vendor + "Transform";
             if (style[prefixed] != null) {
               return prefixed;
@@ -221,30 +221,30 @@
     };
 
     initSlides = function() {
-      var effectAfter, effectBefore, i, slide, _i, _len, _ref1, _ref2, _ref3, _ref4, _results;
-      effectBefore = (_ref1 = this.options.effect.before) != null ? _ref1 : Function.prototype;
-      effectAfter = (_ref2 = this.options.effect.after) != null ? _ref2 : Function.prototype;
-      this.slides = (_ref3 = this.el.children) != null ? _ref3 : this.el.childNodes;
+      var effectAfter, effectBefore, i, j, len, ref1, ref2, ref3, ref4, results, slide;
+      effectBefore = (ref1 = this.options.effect.before) != null ? ref1 : Function.prototype;
+      effectAfter = (ref2 = this.options.effect.after) != null ? ref2 : Function.prototype;
+      this.slides = (ref3 = this.el.children) != null ? ref3 : this.el.childNodes;
       this.current = 0;
-      _ref4 = this.slides;
-      _results = [];
-      for (i = _i = 0, _len = _ref4.length; _i < _len; i = ++_i) {
-        slide = _ref4[i];
+      ref4 = this.slides;
+      results = [];
+      for (i = j = 0, len = ref4.length; j < len; i = ++j) {
+        slide = ref4[i];
         if (i !== this.current) {
           if (i === this.current) {
             effectBefore.call(this, 0, this.slides[this.current]);
-            _results.push(effectAfter.call(this, 1, this.slides[this.current]));
+            results.push(effectAfter.call(this, 1, this.slides[this.current]));
           } else {
             effectBefore.call(this, 1, slide);
-            _results.push(effectAfter.call(this, 0, slide));
+            results.push(effectAfter.call(this, 0, slide));
           }
         }
       }
-      return _results;
+      return results;
     };
 
     initEvents = function() {
-      var slide, _i, _len, _ref1, _results;
+      var j, len, ref1, results, slide;
       this.eventStart = bind(eventStart, this);
       this.eventProgress = bind(eventProgress, this);
       this.eventEnd = bind(eventEnd, this);
@@ -258,15 +258,15 @@
         this.el.addEventListener('mousemove', this.eventProgress);
         this.el.addEventListener('mouseup', this.eventEnd);
         this.el.addEventListener('mouseleave', this.eventEnd);
-        _ref1 = this.slides;
-        _results = [];
-        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-          slide = _ref1[_i];
+        ref1 = this.slides;
+        results = [];
+        for (j = 0, len = ref1.length; j < len; j++) {
+          slide = ref1[j];
           slide.addEventListener('mousedown', preventDefault);
           slide.addEventListener('mousemove', preventDefault);
-          _results.push(slide.addEventListener('mouseup', preventDefault));
+          results.push(slide.addEventListener('mouseup', preventDefault));
         }
-        return _results;
+        return results;
       }
     };
 
@@ -274,15 +274,15 @@
       return this.current = indexOf(this.slides, slide);
     };
 
-    animateSlides = function(currentSlide, targetSlide, _arg, callback) {
-      var direction, duration, durationMod, effectBefore, initialProgress, progress, _ref1, _ref2;
-      direction = _arg.direction, initialProgress = _arg.initialProgress, durationMod = _arg.durationMod;
+    animateSlides = function(currentSlide, targetSlide, arg, callback) {
+      var direction, duration, durationMod, effectBefore, initialProgress, progress, ref1, ref2;
+      direction = arg.direction, initialProgress = arg.initialProgress, durationMod = arg.durationMod;
       if (this.currentAnimation != null) {
         return;
       }
       if (!((this.currentEvent != null) && this.currentEvent.cancelOnWillChange)) {
-        if ((_ref1 = this.options.onWillChange) != null) {
-          _ref1.call(this, currentSlide, targetSlide, __modulo(this.current - direction / Math.abs(direction), this.slides.length));
+        if ((ref1 = this.options.onWillChange) != null) {
+          ref1.call(this, currentSlide, targetSlide, modulo(this.current - direction / Math.abs(direction), this.slides.length));
         }
       }
       progress = initialProgress != null ? initialProgress : 0;
@@ -291,7 +291,7 @@
       }
       duration = Math.max(1, this.options.animationDuration * (1 - progress) * durationMod);
       if (this.currentEvent == null) {
-        effectBefore = (_ref2 = this.options.effect.before) != null ? _ref2 : Function.prototype;
+        effectBefore = (ref2 = this.options.effect.before) != null ? ref2 : Function.prototype;
         effectBefore.call(this, 0, currentSlide);
         effectBefore.call(this, (direction < 0 ? 1 : -1), targetSlide);
       }
@@ -308,46 +308,46 @@
     };
 
     nextFrame = function(timestamp) {
-      var anim, callback, currentSlide, direction, duration, effectAfter, effectProgress, id, progress, start, targetSlide, _ref1, _ref2, _ref3, _ref4;
+      var anim, callback, currentSlide, direction, duration, effectAfter, effectProgress, id, progress, ref1, ref2, ref3, ref4, start, targetSlide;
       id = requestAnimationFrame(bind(nextFrame, this));
       anim = this.currentAnimation;
-      _ref1 = this.currentAnimation, start = _ref1.start, progress = _ref1.progress, duration = _ref1.duration, direction = _ref1.direction, currentSlide = _ref1.currentSlide, targetSlide = _ref1.targetSlide, callback = _ref1.callback;
+      ref1 = this.currentAnimation, start = ref1.start, progress = ref1.progress, duration = ref1.duration, direction = ref1.direction, currentSlide = ref1.currentSlide, targetSlide = ref1.targetSlide, callback = ref1.callback;
       progress = progress + (now() - start) / duration * (1 - progress);
       if (progress >= 1) {
         progress = 1;
         this.currentAnimation = null;
         cancelAnimationFrame(id);
-        effectAfter = (_ref2 = this.options.effect.after) != null ? _ref2 : Function.prototype;
+        effectAfter = (ref2 = this.options.effect.after) != null ? ref2 : Function.prototype;
         effectAfter.call(this, 0, currentSlide);
         effectAfter.call(this, 1, targetSlide);
         setCurrentSlide.call(this, targetSlide);
-        if (callback != null) {
+        if (typeof callback === 'function') {
           callback.call(this, currentSlide, targetSlide, this.current);
         }
-        if ((_ref3 = this.options.onDidChange) != null) {
-          _ref3.call(this, currentSlide, targetSlide, this.current);
+        if ((ref3 = this.options.onDidChange) != null) {
+          ref3.call(this, currentSlide, targetSlide, this.current);
         }
         setCurrentSlide.call(this, targetSlide);
       }
-      effectProgress = (_ref4 = this.options.effect.progress) != null ? _ref4 : Function.prototype;
+      effectProgress = (ref4 = this.options.effect.progress) != null ? ref4 : Function.prototype;
       effectProgress.call(this, 0, progress * direction, currentSlide);
       return effectProgress.call(this, 1, progress * direction, targetSlide);
     };
 
     eventStart = function(event) {
-      var currentSlide, effectBefore, nextSlide, prevSlide, startX, startY, timeStamp, _ref1, _ref2, _ref3, _ref4;
+      var currentSlide, effectBefore, nextSlide, prevSlide, ref1, ref2, ref3, ref4, startX, startY, timeStamp;
       if ((this.currentAnimation != null) || (this.currentEvent != null)) {
         return;
       }
       currentSlide = this.getCurrentSlide();
       prevSlide = this.getPrevSlide();
       nextSlide = this.getNextSlide();
-      effectBefore = (_ref1 = this.options.effect.before) != null ? _ref1 : Function.prototype;
+      effectBefore = (ref1 = this.options.effect.before) != null ? ref1 : Function.prototype;
       effectBefore.call(this, 0, currentSlide);
       effectBefore.call(this, -1, prevSlide);
       effectBefore.call(this, 1, nextSlide);
       timeStamp = event.timeStamp;
-      _ref4 = (_ref2 = (_ref3 = event.touches) != null ? _ref3[0] : void 0) != null ? _ref2 : event, startX = _ref4.pageX, startY = _ref4.pageY;
+      ref4 = (ref2 = (ref3 = event.touches) != null ? ref3[0] : void 0) != null ? ref2 : event, startX = ref4.pageX, startY = ref4.pageY;
       return this.currentEvent = {
         currentSlide: currentSlide,
         prevSlide: prevSlide,
@@ -359,11 +359,11 @@
     };
 
     eventProgress = function(event) {
-      var nextIndex, pageX, pageY, progress, targetSlide, _ref1, _ref2, _ref3, _ref4;
+      var nextIndex, pageX, pageY, progress, ref1, ref2, ref3, ref4, targetSlide;
       if (this.currentAnimation || (this.currentEvent == null)) {
         return;
       }
-      _ref3 = (_ref1 = (_ref2 = event.touches) != null ? _ref2[0] : void 0) != null ? _ref1 : event, pageX = _ref3.pageX, pageY = _ref3.pageY;
+      ref3 = (ref1 = (ref2 = event.touches) != null ? ref2[0] : void 0) != null ? ref1 : event, pageX = ref3.pageX, pageY = ref3.pageY;
       progress = {
         x: (pageX - this.currentEvent.startX) / this.el.clientWidth,
         y: (pageY - this.currentEvent.startY) / this.el.clientHeight
@@ -392,16 +392,16 @@
       }
       if (!(this.currentEvent.cancelOnWillChange && progress !== 0)) {
         this.currentEvent.cancelOnWillChange = true;
-        nextIndex = __modulo(this.current - progress / Math.abs(progress), this.slides.length);
-        if ((_ref4 = this.options.onWillChange) != null) {
-          _ref4.call(this, this.currentEvent.currentSlide, targetSlide, nextIndex);
+        nextIndex = modulo(this.current - progress / Math.abs(progress), this.slides.length);
+        if ((ref4 = this.options.onWillChange) != null) {
+          ref4.call(this, this.currentEvent.currentSlide, targetSlide, nextIndex);
         }
       }
       this.currentEvent.targetSlide = targetSlide;
       return requestAnimationFrame((function(_this) {
         return function() {
-          var effectProgress, _ref5;
-          effectProgress = (_ref5 = _this.options.effect.progress) != null ? _ref5 : Function.prototype;
+          var effectProgress, ref5;
+          effectProgress = (ref5 = _this.options.effect.progress) != null ? ref5 : Function.prototype;
           effectProgress.call(_this, 0, progress, _this.currentEvent.currentSlide);
           return effectProgress.call(_this, 1, progress, targetSlide);
         };
@@ -409,12 +409,12 @@
     };
 
     eventEnd = function(event) {
-      var condition, currentSlide, direction, durationMod, initialProgress, pageX, pageY, progress, progressAbs, targetSlide, timePassed, timeStamp, _i, _len, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6;
+      var condition, currentSlide, direction, durationMod, initialProgress, j, len, pageX, pageY, progress, progressAbs, ref1, ref2, ref3, ref4, ref5, ref6, targetSlide, timePassed, timeStamp;
       if (this.currentAnimation || (this.currentEvent == null)) {
         return;
       }
       timeStamp = event.timeStamp;
-      _ref3 = (_ref1 = (_ref2 = event.changedTouches) != null ? _ref2[0] : void 0) != null ? _ref1 : event, pageX = _ref3.pageX, pageY = _ref3.pageY;
+      ref3 = (ref1 = (ref2 = event.changedTouches) != null ? ref2[0] : void 0) != null ? ref1 : event, pageX = ref3.pageX, pageY = ref3.pageY;
       progress = (function() {
         switch (this.options.animationDirection) {
           case 'x':
@@ -440,11 +440,11 @@
       }
       timePassed = timeStamp - this.currentEvent.timeStamp;
       progressAbs = Math.abs(progress);
-      _ref4 = this.options.effect.conditions;
-      for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
-        condition = _ref4[_i];
-        if (progressAbs > condition.progress && timePassed < ((_ref5 = condition.time) != null ? _ref5 : Infinity)) {
-          durationMod = (_ref6 = condition.durationModifier) != null ? _ref6 : 1;
+      ref4 = this.options.effect.conditions;
+      for (j = 0, len = ref4.length; j < len; j++) {
+        condition = ref4[j];
+        if (progressAbs > condition.progress && timePassed < ((ref5 = condition.time) != null ? ref5 : Infinity)) {
+          durationMod = (ref6 = condition.durationModifier) != null ? ref6 : 1;
           break;
         }
       }
@@ -483,7 +483,7 @@
     };
 
     Slideshow.prototype.getSlide = function(i) {
-      return this.slides[__modulo(i, this.slides.length)];
+      return this.slides[modulo(i, this.slides.length)];
     };
 
     Slideshow.prototype.getCurrentSlide = function() {
@@ -540,7 +540,7 @@
     };
 
     Slideshow.prototype.destroy = function() {
-      var slide, _i, _len, _ref1, _ref2;
+      var j, len, ref1, ref2, slide;
       this.el.removeEventListener('touchstart', this.eventStart);
       this.el.removeEventListener('touchmove', this.eventProgress);
       this.el.removeEventListener('touchend', this.eventEnd);
@@ -548,14 +548,14 @@
       this.el.removeEventListener('mousemove', this.eventProgress);
       this.el.removeEventListener('mouseup', this.eventEnd);
       this.el.removeEventListener('mouseleave', this.eventEnd);
-      _ref1 = this.slides;
-      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-        slide = _ref1[_i];
+      ref1 = this.slides;
+      for (j = 0, len = ref1.length; j < len; j++) {
+        slide = ref1[j];
         slide.removeEventListener('mousedown', preventDefault);
         slide.removeEventListener('mousemove', preventDefault);
         slide.removeEventListener('mouseup', preventDefault);
       }
-      return _ref2 = {}, this.el = _ref2.el, this.slides = _ref2.slides, this.eventStart = _ref2.eventStart, this.eventProgress = _ref2.eventProgress, this.eventEnd = _ref2.eventEnd, this.options = _ref2.options, _ref2;
+      return ref2 = {}, this.el = ref2.el, this.slides = ref2.slides, this.eventStart = ref2.eventStart, this.eventProgress = ref2.eventProgress, this.eventEnd = ref2.eventEnd, this.options = ref2.options, ref2;
     };
 
     Slideshow.registerAsJQueryPlugin = function(jQuery, methodName) {
@@ -563,13 +563,13 @@
         methodName = 'Slideshow';
       }
       return jQuery.fn[methodName] = function(options) {
-        var container, _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = this.length; _i < _len; _i++) {
-          container = this[_i];
-          _results.push(new Slideshow(container, options));
+        var container, j, len, results;
+        results = [];
+        for (j = 0, len = this.length; j < len; j++) {
+          container = this[j];
+          results.push(new Slideshow(container, options));
         }
-        return _results;
+        return results;
       };
     };
 
